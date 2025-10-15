@@ -1,0 +1,34 @@
+License Summary
+---------------
+
+This project is owned and maintained by Infernet Systems Pvt Ltd (Router Architects).
+
+## 1. Licensing Model
+
+This project is offered under a dual-licensing model:
+
+- GNU Affero General Public License v3.0 (AGPL-3.0)
+- Commercial License (available from Infernet Systems Pvt Ltd)
+
+Users may choose either license according to their usage requirements.
+
+## 2. Contributions and Modifications
+
+All contributions, modifications, and additions to this repository are licensed under:
+
+- GNU Affero General Public License v3.0 (AGPL-3.0), OR
+- A Commercial License obtained from Infernet Systems Pvt Ltd (Router Architects).
+
+By contributing to this repository, contributors agree to these terms by signing the
+appropriate Contributor License Agreement (CLA).
+
+## 3. Usage Options
+
+- Use this project under the terms of the AGPL-3.0 for open-source and community use.
+- Obtain a commercial license for proprietary, closed-source, or commercial distribution.
+
+---
+
+See:
+- `LICENSE-AGPL` for the GNU Affero General Public License v3.0
+- `LICENSE-COMMERCIAL` for commercial licensing terms
