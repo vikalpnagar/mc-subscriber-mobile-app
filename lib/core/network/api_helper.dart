@@ -94,29 +94,25 @@ class ApiHelper {
       printWrapped('Response Body--->$json');
       if (responseCode >= 200 && responseCode < 300) {
         if (checkStatus) {
-          if (json['ErrorDescription'] == null &&
-              json['ErrorDetails'] == null) {
-            return json;
-          } else if (json['responseMessage'] != null) {
-            throw ApiException(
-              json['responseMessage'] ?? 'Failed',
-              translate: false,
-              data: json,
-            );
+          String? errorDescription = extractErrorDescription(json);
+          if (errorDescription != null) {
+            throw ApiException(errorDescription, translate: false, data: json);
           } else {
-            throw ApiException(
-              'something_went_wrong',
-              reportToCrashlytics: true,
-            );
+            return json;
           }
         } else {
           return json;
         }
       } else {
-        throw ApiException(
-          handleErrorResponseCode(responseCode),
-          reportToCrashlytics: true,
-        );
+        String? errorDesc = extractErrorDescription(json);
+        if (errorDesc != null) {
+          throw ApiException(errorDesc, translate: false, data: json);
+        } else {
+          throw ApiException(
+            handleErrorResponseCode(responseCode),
+            reportToCrashlytics: true,
+          );
+        }
       }
     } on HttpException catch (e, stack) {
       bool available = await check(checkActiveInternet: true);
@@ -156,6 +152,16 @@ class ApiHelper {
         );
       }
     }
+  }
+
+  String? extractErrorDescription(json) {
+    bool errorDescAvailable =
+        json != null &&
+        json['ErrorCode'] != null &&
+        json['ErrorDescription'] != null &&
+        json['ErrorDescription'] is String &&
+        (json['ErrorDescription'] as String).isNotEmpty;
+    return errorDescAvailable ? json['ErrorDescription'] : null;
   }
 
   String? _prepareJSONEncoded(
