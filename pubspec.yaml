@@ -42,9 +42,12 @@ dependencies:
   universal_html: ^2.2.4
   http: ^1.5.0
   intl: ^0.20.2
+  json_annotation: ^4.9.0
 dev_dependencies: 
   flutter_test:    # 🚨 CRITICAL: Required for Flutter project testing - DO NOT REMOVE
     sdk: flutter    # 🚨 CRITICAL: Required for Flutter project testing - DO NOT REMOVE
+  build_runner: ^2.10.4
+  json_serializable: ^6.11.3
 flutter:
   generate: true  # Enables automatic generation of localization files
   uses-material-design: true # 🚨 CRITICAL: Required for Material icon font - DO NOT REMOVE
