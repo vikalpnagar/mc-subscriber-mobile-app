@@ -9,7 +9,7 @@ import 'package:family_wifi/core/utils/print_log_helper.dart';
 import 'package:http/http.dart' as http;
 
 class ApiHelper {
-  late final String _host, _suffix;
+  late final String _host, _portAuth, _portDefault, _suffix;
   Map<String, String> get _headers => {'Content-Type': 'application/json'};
 
   late final PersistentIoClient persistentIoClient;
@@ -18,9 +18,13 @@ class ApiHelper {
     if (ApiConstants.developmentMode) {
       _host = ApiConstants.baseUrlDev;
       _suffix = ApiConstants.suffixDev;
+      _portAuth = ApiConstants.authPortDev;
+      _portDefault = ApiConstants.defaultPortDev;
     } else {
       _host = ApiConstants.baseUrl;
       _suffix = ApiConstants.suffix;
+      _portAuth = ApiConstants.authPort;
+      _portDefault = ApiConstants.defaultPort;
     }
     initClient();
   }
@@ -51,7 +55,13 @@ class ApiHelper {
     if (!await check()) {
       throw ApiException('out_of_coverage', isOutOfCoverage: true);
     }
-    final Uri uri = Uri.https(_host, '$_suffix$path', parameters);
+    String hostName = _host;
+    if (path == ApiConstants.login) {
+      hostName += _portAuth;
+    } else {
+      hostName += _portDefault;
+    }
+    final Uri uri = Uri.https(hostName, '$_suffix$path', parameters);
     try {
       String? encodedBody;
       http.Response? response;

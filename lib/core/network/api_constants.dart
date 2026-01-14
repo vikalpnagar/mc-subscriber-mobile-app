@@ -1,9 +1,13 @@
 class ApiConstants {
-  static const String baseUrlDev = 'openwifi.wlan.local:16001';
+  static const String baseUrlDev = 'openwifi3.routerarchitects.com';
   static const String suffixDev = 'api/v1/';
+  static const String authPortDev = '16001';
+  static const String defaultPortDev = '16006';
 
-  static const String baseUrl = 'openwifi.wlan.local:16001';
+  static const String baseUrl = 'openwifi.routerarchitects.com';
   static const String suffix = 'api/v1/';
+  static const String authPort = '16001';
+  static const String defaultPort = '16006';
 
   static const String signup = 'signup';
   static const String login = 'login';
