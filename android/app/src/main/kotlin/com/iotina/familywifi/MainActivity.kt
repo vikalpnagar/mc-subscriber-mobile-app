@@ -1,4 +1,4 @@
-package com.example.family_wifi
+package com.iotina.familywifi
 
 import io.flutter.embedding.android.FlutterActivity
 
