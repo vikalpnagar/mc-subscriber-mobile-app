@@ -165,6 +165,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account is successfully created. Please check your email to setup password for your account.'**
   String get signup_successful_msg;
+
+  /// No description provided for @invalid_login_result.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid login response received from server.'**
+  String get invalid_login_result;
+
+  /// No description provided for @no_mail_app_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Mail App'**
+  String get no_mail_app_title;
+
+  /// No description provided for @no_mail_app_message.
+  ///
+  /// In en, this message translates to:
+  /// **'No mail apps installed'**
+  String get no_mail_app_message;
 }
 
 class _AppLocalizationsDelegate

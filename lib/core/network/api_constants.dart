@@ -10,7 +10,7 @@ class ApiConstants {
   static const String defaultPort = '16006';
 
   static const String signup = 'signup';
-  static const String login = 'login';
+  static const String login = 'suboauth2';
 
   static const int connectionTimeoutSec = 30;
   static const int idleTimeoutSec = 90;

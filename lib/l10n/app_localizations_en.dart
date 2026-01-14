@@ -46,4 +46,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get signup_successful_msg =>
       'Your account is successfully created. Please check your email to setup password for your account.';
+
+  @override
+  String get invalid_login_result =>
+      'Invalid login response received from server.';
+
+  @override
+  String get no_mail_app_title => 'Open Mail App';
+
+  @override
+  String get no_mail_app_message => 'No mail apps installed';
 }

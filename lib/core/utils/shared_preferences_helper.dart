@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesHelper {
@@ -21,13 +22,25 @@ class SharedPreferencesHelper {
   Future<bool?> get isFirstRun => _sharedPreference.getBool(_firstRun);
 
   Future<void> setAccessToken(String value) async {
-    return _sharedPreference.setString(_accessToken, value);
+    AndroidOptions _getAndroidOptions() =>
+        const AndroidOptions(encryptedSharedPreferences: true);
+    IOSOptions _getIosOptions() =>
+        const IOSOptions(accessibility: KeychainAccessibility.first_unlock);
+    final storage = FlutterSecureStorage(
+      aOptions: _getAndroidOptions(),
+      iOptions: _getIosOptions(),
+    );
+    await storage.write(key: _accessToken, value: value);
   }
 
-  Future<String?> get accessToken => _sharedPreference.getString(_accessToken);
+  Future<String?> get accessToken {
+    final storage = FlutterSecureStorage();
+    return storage.read(key: _accessToken);
+  }
 
   Future<void> removeAccessToken() async {
-    return _sharedPreference.remove(_accessToken);
+    final storage = FlutterSecureStorage();
+    return storage.delete(key: _accessToken);
   }
 
   void dispose() {}

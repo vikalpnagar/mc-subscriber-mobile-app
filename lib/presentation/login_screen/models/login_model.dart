@@ -1,35 +1,24 @@
-/// This class is used in the [login_screen] screen.
+import 'package:json_annotation/json_annotation.dart';
+part 'login_model.g.dart';
 
-// ignore_for_file: must_be_immutable
+@JsonSerializable()
 class LoginModel {
-  LoginModel({
-    this.email,
-    this.password,
-    this.isSuccess,
-    this.errorMessage,
-  }) {
-    email = email ?? '';
+  LoginModel({this.userId, this.password}) {
+    userId = userId ?? '';
     password = password ?? '';
-    isSuccess = isSuccess ?? false;
-    errorMessage = errorMessage ?? '';
   }
 
-  String? email;
+  String? userId;
   String? password;
-  bool? isSuccess;
-  String? errorMessage;
 
-  LoginModel copyWith({
-    String? email,
-    String? password,
-    bool? isSuccess,
-    String? errorMessage,
-  }) {
+  LoginModel copyWith({String? userId, String? password}) {
     return LoginModel(
-      email: email ?? this.email,
+      userId: userId ?? this.userId,
       password: password ?? this.password,
-      isSuccess: isSuccess ?? this.isSuccess,
-      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
+
+  factory LoginModel.fromJson(Map<String, dynamic> json) =>
+      _$LoginModelFromJson(json);
+  Map<String, dynamic> toJson() => _$LoginModelToJson(this);
 }
