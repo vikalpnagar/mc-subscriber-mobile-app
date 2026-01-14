@@ -65,40 +65,46 @@ class NetworkDashboardProvider {
         );
         final gvNode = Node.Id(graphNodeInfo);
         graph.addNode(gvNode);
-        int noOfClients = 0;
-        tpNode.aps?.forEach((apNode) {
-          // final gvAPNode = Node.Id(
-          //   GraphNodeInfo(
-          //     nodeKey++,
-          //     apNode.ssid ?? 'AP',
-          //     'AP',
-          //     Icons.wifi,
-          //     Colors.teal,
-          //   ),
-          // );
-          // graph.addEdge(
-          //   gvNode,
-          //   gvAPNode,
-          //   paint: Paint()..color = Colors.tealAccent,
-          // );
-          apNode.clients?.forEach((clientNode) {
-            noOfClients++;
-            final gvClientNode = Node.Id(
-              GraphNodeInfo(
-                nodeKey++,
-                clientNode.station ?? 'CLIENT',
-                'CLIENT',
-                icon: Icons.devices,
-                color: Colors.cyan,
-              ),
-            );
-            graph.addEdge(
-              gvNode,
-              gvClientNode,
-              paint: Paint()..color = Colors.cyanAccent,
-            );
-          });
-        });
+        int noOfClients =
+            tpNode.aps?.fold<int>(
+              0,
+              (previous, aps) => previous + (aps.clients?.length ?? 0),
+            ) ??
+            0;
+        ;
+        // tpNode.aps?.forEach((apNode) {
+        // final gvAPNode = Node.Id(
+        //   GraphNodeInfo(
+        //     nodeKey++,
+        //     apNode.ssid ?? 'AP',
+        //     'AP',
+        //     Icons.wifi,
+        //     Colors.teal,
+        //   ),
+        // );
+        // graph.addEdge(
+        //   gvNode,
+        //   gvAPNode,
+        //   paint: Paint()..color = Colors.tealAccent,
+        // );
+        //   apNode.clients?.forEach((clientNode) {
+        //     noOfClients++;
+        //     final gvClientNode = Node.Id(
+        //       GraphNodeInfo(
+        //         nodeKey++,
+        //         clientNode.station ?? 'CLIENT',
+        //         'CLIENT',
+        //         icon: Icons.devices,
+        //         color: Colors.cyan,
+        //       ),
+        //     );
+        //     graph.addEdge(
+        //       gvNode,
+        //       gvClientNode,
+        //       paint: Paint()..color = Colors.cyanAccent,
+        //     );
+        //   });
+        // });
         if (noOfClients > 0) {
           graphNodeInfo.label = noOfClients.toString();
           totalNoOfClients += noOfClients;

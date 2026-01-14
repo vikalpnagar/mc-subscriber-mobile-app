@@ -1,6 +1,4 @@
-import 'package:el_tooltip/el_tooltip.dart';
 import 'package:family_wifi/core/app_export.dart';
-import 'package:family_wifi/core/utils/print_log_helper.dart';
 import 'package:family_wifi/presentation/home_screen/models/subscriber_info.dart';
 import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
 import 'package:family_wifi/presentation/network_dashboard_screen/models/network_item_model.dart';
@@ -109,35 +107,25 @@ class _DashboardOverviewTabState extends State<DashboardOverviewTab>
 
   Widget buildNode(Node node) {
     GraphNodeInfo nodeInfo = node.key!.value as GraphNodeInfo;
-    return ElTooltip(
-      showChildAboveOverlay: false,
-      distance: 2.0,
-      radius: Radius.circular(4),
-      padding: EdgeInsetsGeometry.all(8),
-      content: Text(
-        nodeInfo.label,
-        style: TextStyleHelper.instance.body12MediumInter,
+    return Container(
+      // width: 52.0,
+      // height: 52.0,
+      padding: EdgeInsets.all(16),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        border: Border.all(color: nodeInfo.color!),
       ),
-      child: Container(
-        // width: 52.0,
-        // height: 52.0,
-        padding: EdgeInsets.all(16),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          border: Border.all(color: nodeInfo.color!),
-        ),
-        child: nodeInfo.icon != null
-            ? Icon(nodeInfo.icon, color: nodeInfo.color, size: 24.0)
-            : Text(
-                nodeInfo.label,
-                style: TextStyleHelper.instance.title18BoldInter.copyWith(
-                  color: nodeInfo.color,
-                ),
-                textAlign: TextAlign.center,
+      child: nodeInfo.icon != null
+          ? Icon(nodeInfo.icon, color: nodeInfo.color, size: 24.0)
+          : Text(
+              nodeInfo.label,
+              style: TextStyleHelper.instance.title18BoldInter.copyWith(
+                color: nodeInfo.color,
               ),
-      ),
+              textAlign: TextAlign.center,
+            ),
     );
   }
 
