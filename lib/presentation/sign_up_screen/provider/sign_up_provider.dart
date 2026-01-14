@@ -1,14 +1,28 @@
+import 'package:family_wifi/core/network/result.dart';
+import 'package:family_wifi/core/utils/alert_state_provider.dart';
+import 'package:family_wifi/core/utils/base_bloc.dart';
+import 'package:family_wifi/core/utils/loading_state_provider.dart';
+import 'package:family_wifi/core/utils/navigator_service.dart';
+import 'package:family_wifi/presentation/sign_up_screen/models/sign_up_model.dart';
+import 'package:family_wifi/presentation/sign_up_screen/repository/sign_up_repository.dart';
+import 'package:family_wifi/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 
-import '../models/sign_up_model.dart';
-
-class SignUpProvider extends ChangeNotifier {
+class SignUpProvider with BaseBloc {
   SignUpModel signUpModel = SignUpModel();
   TextEditingController emailController = TextEditingController();
   TextEditingController operatorIdController = TextEditingController();
   TextEditingController macAddressController = TextEditingController();
 
-  bool isLoading = false;
+  late final SignUpRepository _repository;
+
+  SignUpProvider(
+    LoadingStateProvider loadingStateProvider,
+    AlertStateProvider alertStateProvider,
+    this._repository,
+  ) {
+    initialize(loadingStateProvider, alertStateProvider);
+  }
 
   @override
   void dispose() {
@@ -18,10 +32,8 @@ class SignUpProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  void initialize() {
-    signUpModel.email = '';
-    signUpModel.operatorId = '';
-    signUpModel.macAddress = '';
+  void init() {
+    // Add any initializations here
   }
 
   String? validateEmail(String? value) {
@@ -50,7 +62,7 @@ class SignUpProvider extends ChangeNotifier {
       return 'MAC address is required';
     }
 
-    final macRegex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
+    final macRegex = RegExp(r'^([0-9a-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
     if (!macRegex.hasMatch(value.trim())) {
       return 'Please enter a valid MAC address';
     }
@@ -63,28 +75,36 @@ class SignUpProvider extends ChangeNotifier {
       return;
     }
 
-    isLoading = true;
-    notifyListeners();
+    startLoading();
 
     try {
       signUpModel.email = emailController.text.trim();
       signUpModel.operatorId = operatorIdController.text.trim();
-      signUpModel.macAddress = macAddressController.text.trim();
 
-      await Future.delayed(Duration(seconds: 2));
+      RegExp specialChars = RegExp(r'[^\w]+');
+      signUpModel.macAddress = macAddressController.text
+          .replaceAll(specialChars, '')
+          .toLowerCase();
 
-      emailController.clear();
-      operatorIdController.clear();
-      macAddressController.clear();
+      Result result = await _repository.createAccount(signUpModel);
+
+      // await Future.delayed(Duration(seconds: 2));
+
+      // emailController.clear();
+      // operatorIdController.clear();
+      // macAddressController.clear();
 
       // Navigate to next screen (assuming password reset confirmation)
       // NavigatorService.pushNamed(AppRoutes.passwordResetConfirmationScreen);
 
-      isLoading = false;
-      notifyListeners();
+      dismissLoading();
+      if (result.isSuccess) {
+        NavigatorService.popAndPushNamed(AppRoutes.loginScreen);
+      } else {
+        showAlert('alert', result.message);
+      }
     } catch (error) {
-      isLoading = false;
-      notifyListeners();
+      dismissLoading();
 
       // Handle error
       print('Sign up error: $error');
