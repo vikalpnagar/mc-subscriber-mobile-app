@@ -1,11 +1,10 @@
-import 'package:family_wifi/presentation/network_health_screen/network_health_screen.dart';
+import 'package:family_wifi/presentation/home_screen/models/subscriber_info.dart';
+import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
 import 'package:family_wifi/presentation/network_health_screen/network_health_screen_initial_page.dart';
 import 'package:family_wifi/presentation/network_health_screen/provider/network_health_provider.dart';
-import 'package:family_wifi/presentation/network_health_screen/widgets/health_status_item_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/app_export.dart';
-import '../../widgets/custom_bottom_bar.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_image_view.dart';
 import './provider/network_dashboard_provider.dart';
@@ -27,6 +26,7 @@ class NetworkDashboardScreen extends StatefulWidget {
 
 class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
     with TickerProviderStateMixin {
+  late final HomeProvider homeController;
   late TabController tabController;
 
   @override
@@ -34,6 +34,8 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
     super.initState();
     tabController = TabController(length: 2, vsync: this);
     context.read<NetworkDashboardProvider>().initialize();
+
+    homeController = Provider.of<HomeProvider>(context, listen: false);
   }
 
   @override
@@ -59,9 +61,7 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
   }
 
   Widget _buildMainContent() {
-    return Expanded(
-      child: Column(children: [_buildTabSection(), _buildTabContent()]),
-    );
+    return Column(children: [_buildTabSection(), _buildTabContent()]);
   }
 
   Widget _buildTabSection() {
@@ -94,16 +94,19 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
   }
 
   Widget _buildTabContent() {
-    return Expanded(
-      child: TabBarView(
-        controller: tabController,
-        children: [
-          _buildOverviewTab(),
-          ChangeNotifierProvider(
-            create: (context) => NetworkHealthProvider(),
-            child: NetworkHealthScreenInitialPage(),
-          ),
-        ],
+    return ValueListenableProvider.value(
+      value: homeController.subscriberInfo,
+      child: Expanded(
+        child: TabBarView(
+          controller: tabController,
+          children: [
+            _buildOverviewTab(),
+            ChangeNotifierProvider(
+              create: (context) => NetworkHealthProvider(),
+              child: NetworkHealthScreenInitialPage(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -169,23 +172,42 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
   Widget _buildNetworkSections() {
     return Consumer<NetworkDashboardProvider>(
       builder: (context, provider, child) {
-        return Column(
-          children: [
-            _buildPrivateNetworkSection(),
-            _buildGuestNetworkSection(),
-            ...provider.networkItems
+        return Consumer<SubscriberInfo?>(
+          builder:
+              (
+                BuildContext context,
+                SubscriberInfo? subscriberInfo,
+                Widget? child,
+              ) {
+                return Column(
+                  children: [
+                    _buildPrivateNetworkSection(
+                      subscriberInfo?.privateWiFiMacAddress,
+                      subscriberInfo?.privateWiFiSSID,
+                    ),
+                    _buildGuestNetworkSection(),
+                    child!,
+                  ],
+                );
+              },
+          child: Column(
+            children: provider.networkItems
                 .map((item) => NetworkItemWidget(networkItem: item))
                 .toList(),
-          ],
+          ),
         );
       },
     );
   }
 
-  Widget _buildPrivateNetworkSection() {
+  Widget _buildPrivateNetworkSection(String? macAddress, String? networkName) {
     return GestureDetector(
-      onTap: () {
-        NavigatorService.pushNamed(AppRoutes.editNetworkScreen);
+      onTap: () async {
+        await NavigatorService.pushNamed(
+          AppRoutes.editNetworkScreen,
+          arguments: {'macAddress': macAddress, 'networkName': networkName},
+        );
+        homeController.triggerSwipeToRefresh();
       },
       child: Container(
         margin: EdgeInsets.only(top: 12.h),
@@ -203,7 +225,7 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
                     style: TextStyleHelper.instance.title16MediumInter,
                   ),
                   Text(
-                    'Home Wi-Fi Network Name (SSID)',
+                    networkName ?? 'Home Wi-Fi Network Name (SSID)',
                     style: TextStyleHelper.instance.body14RegularInter,
                   ),
                 ],

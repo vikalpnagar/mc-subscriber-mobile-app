@@ -130,13 +130,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-    return PageView(
-      controller: controller.pageController,
-      children: [
-        Center(child: NetworkDashboardScreen.builder(context)),
-        Center(child: DeviceManagementScreen.builder(context)),
-        Center(child: Container()),
-      ],
+    return RefreshIndicator(
+      key: controller.refreshIndicatorKey,
+      onRefresh: () => controller.initialSubscribe(showPopupLoader: false),
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: SizedBox(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height,
+          child: PageView(
+            controller: controller.pageController,
+            children: [
+              Center(child: NetworkDashboardScreen.builder(context)),
+              Center(child: DeviceManagementScreen.builder(context)),
+              Center(child: Container()),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

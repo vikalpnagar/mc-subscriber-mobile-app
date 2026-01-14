@@ -12,6 +12,8 @@ class ApiConstants {
   static const String signup = 'signup';
   static const String login = 'suboauth2';
   static const String subscriber = 'subscriber';
+  static const String action = 'action';
+  static const String actionConfigure = 'configure';
 
   static const int connectionTimeoutSec = 30;
   static const int idleTimeoutSec = 90;

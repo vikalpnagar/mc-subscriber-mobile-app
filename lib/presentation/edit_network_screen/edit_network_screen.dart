@@ -1,3 +1,12 @@
+import 'package:family_wifi/core/network/api_helper.dart';
+import 'package:family_wifi/core/utils/alert_state_provider.dart';
+import 'package:family_wifi/core/utils/loading_state_provider.dart';
+import 'package:family_wifi/core/utils/print_log_helper.dart';
+import 'package:family_wifi/core/utils/shared_preferences_helper.dart';
+import 'package:family_wifi/main.dart';
+import 'package:family_wifi/presentation/edit_network_screen/repository/edit_network_repository.dart';
+import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
+import 'package:family_wifi/widgets/style_helper.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/app_export.dart';
@@ -10,9 +19,45 @@ class EditNetworkScreen extends StatefulWidget {
   const EditNetworkScreen({Key? key}) : super(key: key);
 
   static Widget builder(BuildContext context) {
-    return ChangeNotifierProvider<EditNetworkProvider>(
-      create: (context) => EditNetworkProvider(),
-      child: const EditNetworkScreen(),
+    final input = ModalRoute.of(context)?.settings.arguments as Map;
+    return MyApp.buildLoadingAlertProviders(
+      child:
+          ProxyProvider2<
+            ApiHelper,
+            SharedPreferencesHelper,
+            EditNetworkRepository
+          >(
+            update: (_, apiHelper, sharedPrefHelper, editNetworkRepo) {
+              return editNetworkRepo ??
+                  EditNetworkRepository(apiHelper, sharedPrefHelper);
+            },
+            child:
+                ProxyProvider3<
+                  LoadingStateProvider,
+                  AlertStateProvider,
+                  EditNetworkRepository,
+                  EditNetworkProvider
+                >(
+                  update:
+                      (
+                        _,
+                        loadingState,
+                        alertState,
+                        loginRepo,
+                        editNetworkProvider,
+                      ) {
+                        return editNetworkProvider ??
+                            EditNetworkProvider(
+                              loadingState,
+                              alertState,
+                              loginRepo,
+                              input['macAddress'],
+                              input['networkName'],
+                            );
+                      },
+                  child: const EditNetworkScreen(),
+                ),
+          ),
     );
   }
 
@@ -21,62 +66,91 @@ class EditNetworkScreen extends StatefulWidget {
 }
 
 class _EditNetworkScreenState extends State<EditNetworkScreen> {
+  late final EditNetworkProvider controller;
+
   @override
   void initState() {
     super.initState();
+    controller = Provider.of<EditNetworkProvider>(context, listen: false);
+    controller.loadingStateProvider.addListener(handleLoadingState);
+    controller.alertStateProvider.addListener(handleAlertState);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<EditNetworkProvider>(context, listen: false).initialize();
+      controller.init();
     });
+  }
+
+  handleLoadingState() {
+    if (controller.isLoading) {
+      final state = controller.loadingStateProvider;
+      StyleHelper.showProgressDialog(context, state.title, state.message);
+    } else {
+      NavigatorService.goBack();
+    }
+  }
+
+  handleAlertState() {
+    if (controller.isAlertDisplaying) {
+      final state = controller.alertStateProvider;
+      StyleHelper.showAlertDialog(
+        context,
+        state.alertMsg,
+        state.yesMsg,
+        title: state.title,
+        yesHandler: state.yesHandler,
+        noLabel: state.noAction,
+        noHandler: state.noHandler,
+      );
+    } else {
+      NavigatorService.goBack();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: appTheme.gray_900,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(72.h),
-        child: CustomAppBar(
-          title: 'Edit Network',
-          hasLeading: true,
-          leadingIcon: ImageConstant.imgDepth4Frame0WhiteA700,
-          onLeadingPressed: () => Navigator.pop(context),
-          backgroundColor: appTheme.gray_900,
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: appTheme.gray_900,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(72.h),
+          child: CustomAppBar(
+            title: 'Edit Network',
+            hasLeading: true,
+            leadingIcon: ImageConstant.imgDepth4Frame0WhiteA700,
+            onLeadingPressed: () => Navigator.pop(context),
+            backgroundColor: appTheme.gray_900,
+          ),
         ),
-      ),
-      body: Consumer<EditNetworkProvider>(
-        builder: (context, provider, child) {
-          return Form(
-            key: provider.formKey,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: 16.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 12.h),
-                          _buildNetworkNameSection(context, provider),
-                          SizedBox(height: 26.h),
-                          _buildPasswordSection(context, provider),
-                        ],
-                      ),
+        body: Form(
+          key: controller.formKey,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 16.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 12.h),
+                        _buildNetworkNameSection(),
+                        SizedBox(height: 26.h),
+                        _buildPasswordSection(),
+                      ],
                     ),
                   ),
                 ),
-                _buildSaveButton(context, provider),
-              ],
-            ),
-          );
-        },
+              ),
+              _buildSaveButton(),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildNetworkNameSection(
-      BuildContext context, EditNetworkProvider provider) {
+  Widget _buildNetworkNameSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -86,18 +160,17 @@ class _EditNetworkScreenState extends State<EditNetworkScreen> {
         ),
         SizedBox(height: 8.h),
         CustomEditText(
-          controller: provider.networkNameController,
+          controller: controller.networkNameController,
           hintText: 'Enter network name',
           backgroundColor: appTheme.blue_gray_900,
           contentPadding: EdgeInsets.all(12.h),
-          validator: provider.validateNetworkName,
+          validator: controller.validateNetworkName,
         ),
       ],
     );
   }
 
-  Widget _buildPasswordSection(
-      BuildContext context, EditNetworkProvider provider) {
+  Widget _buildPasswordSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -107,24 +180,24 @@ class _EditNetworkScreenState extends State<EditNetworkScreen> {
         ),
         SizedBox(height: 6.h),
         CustomEditText(
-          controller: provider.passwordController,
+          controller: controller.passwordController,
           hintText: 'Enter password',
           inputType: CustomInputType.password,
           backgroundColor: appTheme.blue_gray_900,
           contentPadding: EdgeInsets.all(12.h),
-          validator: provider.validatePassword,
+          validator: controller.validatePassword,
         ),
       ],
     );
   }
 
-  Widget _buildSaveButton(BuildContext context, EditNetworkProvider provider) {
+  Widget _buildSaveButton() {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.h),
       child: CustomButton(
         text: 'Save Changes',
-        onPressed: () => provider.saveChanges(context),
+        onPressed: () => controller.saveChanges(context),
         backgroundColor: appTheme.blue_700,
         fontSize: 16.fSize,
         fontWeight: FontWeight.w700,

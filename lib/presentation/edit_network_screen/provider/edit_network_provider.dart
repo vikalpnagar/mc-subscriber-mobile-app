@@ -1,18 +1,38 @@
+import 'package:family_wifi/core/network/result.dart';
+import 'package:family_wifi/core/utils/alert_state_provider.dart';
+import 'package:family_wifi/core/utils/base_bloc.dart';
+import 'package:family_wifi/core/utils/loading_state_provider.dart';
+import 'package:family_wifi/l10n/app_localization_extension.dart';
+import 'package:family_wifi/presentation/edit_network_screen/repository/edit_network_repository.dart';
 import 'package:flutter/material.dart';
 
 import '../models/edit_network_model.dart';
 
 import '../../../core/app_export.dart';
 
-class EditNetworkProvider extends ChangeNotifier {
-  EditNetworkModel editNetworkModel = EditNetworkModel();
+class EditNetworkProvider with BaseBloc {
+  final EditNetworkModel editNetworkModel = EditNetworkModel();
 
   TextEditingController networkNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  bool isLoading = false;
+  late final EditNetworkRepository _repository;
+  late final String? _macAddress;
+  late final String? _networkName;
+
+  EditNetworkProvider(
+    LoadingStateProvider loadingStateProvider,
+    AlertStateProvider alertStateProvider,
+    this._repository,
+    this._macAddress,
+    this._networkName,
+  ) {
+    initialize(loadingStateProvider, alertStateProvider);
+    editNetworkModel.mac = _macAddress;
+    editNetworkModel.ssid = _networkName;
+  }
 
   @override
   void dispose() {
@@ -21,9 +41,9 @@ class EditNetworkProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  void initialize() {
+  void init() {
     // Initialize with existing network data if available
-    networkNameController.text = editNetworkModel.networkName ?? '';
+    networkNameController.text = editNetworkModel.ssid ?? '';
     passwordController.text = editNetworkModel.password ?? '';
   }
 
@@ -52,44 +72,32 @@ class EditNetworkProvider extends ChangeNotifier {
       return;
     }
 
-    isLoading = true;
-    notifyListeners();
+    startLoading();
 
     try {
-      // Update model with new values
-      editNetworkModel = editNetworkModel.copyWith(
-        networkName: networkNameController.text,
-        password: passwordController.text,
-      );
+      editNetworkModel.ssid = networkNameController.text.trim();
+      editNetworkModel.password = passwordController.text.trim();
 
-      // Simulate API call
-      await Future.delayed(Duration(seconds: 1));
+      Result result = await _repository.editNetwork(editNetworkModel);
 
-      // Clear form fields
-      networkNameController.clear();
-      passwordController.clear();
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Network settings saved successfully'),
-          backgroundColor: appTheme.colorFF4CAF,
-        ),
-      );
-
-      // Navigate back
-      Navigator.pop(context);
+      dismissLoading();
+      if (result.isSuccess) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(await 'edit_network_success'.tr()),
+            backgroundColor: appTheme.colorFF4CAF,
+          ),
+        );
+        NavigatorService.goBack();
+      } else {
+        showAlert(result.message, title: await 'edit_network_failed'.tr());
+      }
     } catch (error) {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to save network settings'),
-          backgroundColor: appTheme.colorFFF443,
-        ),
-      );
-    } finally {
-      isLoading = false;
-      notifyListeners();
+      dismissLoading();
+
+      // Handle error
+      print('Edit Network error: $error');
     }
   }
 }

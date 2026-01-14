@@ -56,4 +56,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get no_mail_app_message => 'No mail apps installed';
+
+  @override
+  String get subscribe_failed => 'Subscribe Failed';
+
+  @override
+  String get edit_network_success => 'Network settings saved successfully';
+
+  @override
+  String get edit_network_failed => 'SSID/Password Update Failed';
+
+  @override
+  String get invalid_response => 'Invalid data received from server.';
 }

@@ -1,35 +1,33 @@
-/// This class is used in the [edit_network_screen] screen.
+import 'package:json_annotation/json_annotation.dart';
+part 'edit_network_model.g.dart';
 
-// ignore_for_file: must_be_immutable
+@JsonSerializable()
 class EditNetworkModel {
-  EditNetworkModel({
-    this.networkName,
-    this.password,
-    this.isPasswordVisible,
-    this.id,
-  }) {
-    networkName = networkName ?? '';
+  EditNetworkModel({this.ssid, this.password, this.mac, this.when = 0}) {
+    ssid = ssid ?? '';
     password = password ?? '';
-    isPasswordVisible = isPasswordVisible ?? false;
-    id = id ?? '';
   }
 
-  String? networkName;
+  String? ssid;
   String? password;
-  bool? isPasswordVisible;
-  String? id;
+  String? mac;
+  int when;
 
   EditNetworkModel copyWith({
-    String? networkName,
+    String? ssid,
     String? password,
-    bool? isPasswordVisible,
-    String? id,
+    String? mac,
+    int? when,
   }) {
     return EditNetworkModel(
-      networkName: networkName ?? this.networkName,
+      ssid: ssid ?? this.ssid,
       password: password ?? this.password,
-      isPasswordVisible: isPasswordVisible ?? this.isPasswordVisible,
-      id: id ?? this.id,
+      mac: mac ?? this.mac,
+      when: when ?? this.when,
     );
   }
+
+  factory EditNetworkModel.fromJson(Map<String, dynamic> json) =>
+      _$EditNetworkModelFromJson(json);
+  Map<String, dynamic> toJson() => _$EditNetworkModelToJson(this);
 }

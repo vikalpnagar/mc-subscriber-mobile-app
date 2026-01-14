@@ -13,5 +13,9 @@
   "signup_successful_msg": "Your account is successfully created. Please check your email to setup password for your account.",
   "invalid_login_result": "Invalid login response received from server.",
   "no_mail_app_title": "Open Mail App",
-  "no_mail_app_message": "No mail apps installed"
+  "no_mail_app_message": "No mail apps installed",
+  "subscribe_failed": "Subscribe Failed",
+  "edit_network_success": "Network settings saved successfully",
+  "edit_network_failed": "SSID/Password Update Failed",
+  "invalid_response": "Invalid data received from server."
 }

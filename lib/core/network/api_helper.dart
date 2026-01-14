@@ -75,7 +75,7 @@ class ApiHelper {
           response = await client.get(uri, headers: _headers);
           break;
         case RequestType.POST:
-          encodedBody = _prepareJSONEncoded(parameters, requestBody);
+          encodedBody = _prepareJSONEncoded(null, requestBody);
           printWrapped('Request Body--->$encodedBody');
           response = await client.post(
             uri,
@@ -84,7 +84,7 @@ class ApiHelper {
           );
           break;
         case RequestType.PUT:
-          encodedBody = _prepareJSONEncoded(parameters, requestBody);
+          encodedBody = _prepareJSONEncoded(null, requestBody);
           response = await client.put(
             uri,
             headers: _headers,

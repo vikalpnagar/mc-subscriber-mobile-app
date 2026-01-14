@@ -183,6 +183,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No mail apps installed'**
   String get no_mail_app_message;
+
+  /// No description provided for @subscribe_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe Failed'**
+  String get subscribe_failed;
+
+  /// No description provided for @edit_network_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Network settings saved successfully'**
+  String get edit_network_success;
+
+  /// No description provided for @edit_network_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'SSID/Password Update Failed'**
+  String get edit_network_failed;
+
+  /// No description provided for @invalid_response.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid data received from server.'**
+  String get invalid_response;
 }
 
 class _AppLocalizationsDelegate

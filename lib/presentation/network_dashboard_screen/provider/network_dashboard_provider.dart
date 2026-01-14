@@ -46,4 +46,6 @@ class NetworkDashboardProvider extends ChangeNotifier {
     selectedBottomBarIndex = index;
     notifyListeners();
   }
+
+  void onPrivateWiFiNetworkSelected() {}
 }
