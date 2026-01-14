@@ -6,18 +6,18 @@ import '../widgets/network_item_widget.dart';
 // ignore_for_file: must_be_immutable
 class NetworkItemModel {
   NetworkItemModel({
-    this.title,
-    this.subtitle,
+    required this.title,
+    required this.subtitle,
     this.value,
     this.onTap,
   }) {
-    title = title ?? '';
-    subtitle = subtitle ?? '';
-    value = value ?? '';
+    title = title;
+    subtitle = subtitle;
+    value = value;
   }
 
-  String? title;
-  String? subtitle;
+  String title;
+  String subtitle;
   String? value;
   VoidCallback? onTap;
 }

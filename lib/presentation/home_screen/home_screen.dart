@@ -43,7 +43,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late final HomeProvider controller;
 
   @override
@@ -91,11 +92,17 @@ class _HomeScreenState extends State<HomeScreen> {
         value: controller.selectedNavBarItem,
         child: Consumer<BottomBarItem>(
           builder: (BuildContext context, BottomBarItem value, Widget? child) {
-            return Scaffold(
-              backgroundColor: appTheme.gray_900,
-              appBar: _buildCustomAppBar(value),
-              body: _buildBody(),
-              bottomNavigationBar: _buildBottomNavigationBar(value),
+            return PopScope(
+              canPop: value.index == 0,
+              onPopInvokedWithResult: (didPop, result) {
+                if (!didPop) controller.onNavBarItemSelected(0);
+              },
+              child: Scaffold(
+                backgroundColor: appTheme.gray_900,
+                appBar: _buildCustomAppBar(value),
+                body: _buildBody(),
+                bottomNavigationBar: _buildBottomNavigationBar(value),
+              ),
             );
           },
         ),
@@ -109,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
       centerTitle: true,
       hasLeading: selectedBottomBar.appBarHasLeading,
       leadingIcon: ImageConstant.imgDepth4Frame0WhiteA700,
-      onLeadingPressed: () => NavigatorService.goBack(),
+      onLeadingPressed: () => controller.onNavBarItemSelected(0),
       backgroundColor: appTheme.gray_900,
       titleColor: appTheme.white_A700,
       actions: selectedBottomBar.appBarHasTrailing
@@ -133,9 +140,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return PageView(
       controller: controller.pageController,
       children: [
-        Center(child: NetworkDashboardScreen.builder(context)),
-        Center(child: DeviceManagementScreen.builder(context)),
-        Center(child: Container()),
+        NetworkDashboardScreen.builder(context),
+        DeviceManagementScreen.builder(context),
+        Container(),
       ],
     );
   }

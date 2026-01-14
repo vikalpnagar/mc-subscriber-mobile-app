@@ -1,20 +1,25 @@
+import 'package:family_wifi/core/utils/navigator_service.dart';
 import 'package:family_wifi/core/utils/print_log_helper.dart';
 import 'package:family_wifi/presentation/home_screen/models/topology_info.dart'
     hide Node;
-import 'package:flutter/cupertino.dart';
+import 'package:family_wifi/presentation/network_dashboard_screen/models/network_item_model.dart';
+import 'package:family_wifi/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
 
-import '../../../core/app_export.dart';
-import '../models/network_dashboard_model.dart';
-import '../models/network_item_model.dart';
-
 class NetworkDashboardProvider {
-  NetworkDashboardModel networkDashboardModel = NetworkDashboardModel();
+  final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+
   List<NetworkItemModel> networkItems = [];
+
+  final ValueNotifier<NetworkItemModel> mobileDeviceInfo = new ValueNotifier(
+    NetworkItemModel(title: 'No Devices', subtitle: 'Mobile Devices'),
+  );
 
   final Graph graph = Graph()..isTree = true;
   final BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
+  final GraphViewController graphController = GraphViewController();
 
   void initialize() {
     _initializeNetworkItems();
@@ -22,14 +27,6 @@ class NetworkDashboardProvider {
 
   void _initializeNetworkItems() {
     networkItems = [
-      NetworkItemModel(
-        title: '12 Devices',
-        subtitle: 'Mobile Devices',
-        value: '2.5 GB',
-        onTap: () {
-          // NavigatorService.pushNamed(AppRoutes.networkDevicesManagementScreen);
-        },
-      ),
       NetworkItemModel(
         title: 'Family WiFi',
         subtitle: 'Manage parental controls',
@@ -52,7 +49,11 @@ class NetworkDashboardProvider {
   final ValueNotifier<bool> displayGraph = new ValueNotifier(false);
 
   void handleTopologyInfo(TopologyInfo? topologyInfo) {
+    logPrint('handleTopologyInfo start');
     if (topologyInfo != null && (topologyInfo.nodes?.isNotEmpty ?? false)) {
+      clearGraph();
+
+      int totalNoOfClients = 0;
       int nodeKey = 1;
       topologyInfo.nodes!.forEach((tpNode) {
         final graphNodeInfo = GraphNodeInfo(
@@ -100,8 +101,16 @@ class NetworkDashboardProvider {
         });
         if (noOfClients > 0) {
           graphNodeInfo.label = noOfClients.toString();
+          totalNoOfClients += noOfClients;
         }
       });
+
+      mobileDeviceInfo.value = NetworkItemModel(
+        title:
+            '${totalNoOfClients == 0 ? 'No' : totalNoOfClients} ${totalNoOfClients == 0 || totalNoOfClients > 1 ? 'Devices' : 'Device'}',
+        subtitle: 'Mobile Devices',
+        value: '2.5 GB',
+      );
 
       if (topologyInfo.edges?.mesh?.isNotEmpty ?? false) {
         topologyInfo.edges?.mesh!.forEach((meshInfo) {
@@ -139,8 +148,14 @@ class NetworkDashboardProvider {
         });
       }
       displayGraph.value = true;
+      graphController.forceRecalculation();
+      Future.delayed(
+        const Duration(milliseconds: 500),
+        () => graphController.zoomToFit(),
+      );
+      logPrint('handleTopologyInfo end');
     } else {
-      if (graph.edges.isNotEmpty) graph.removeEdges(graph.edges);
+      clearGraph();
       displayGraph.value = false;
     }
 
@@ -150,6 +165,21 @@ class NetworkDashboardProvider {
       ..subtreeSeparation = (150)
       ..useCurvedConnections = false
       ..orientation = (BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM);
+  }
+
+  void clearGraph() {
+    if (graph.edges.isNotEmpty) {
+      List<Edge> oldGraphEdges = List.from(graph.edges);
+      graph.removeEdges(oldGraphEdges);
+    }
+    if (graph.nodes.isNotEmpty) {
+      List<Node> oldGraphNodes = List.from(graph.nodes);
+      graph.removeNodes(oldGraphNodes);
+    }
+  }
+
+  void triggerPullToRefresh() {
+    refreshIndicatorKey.currentState?.show();
   }
 }
 
