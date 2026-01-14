@@ -35,6 +35,11 @@ class RouterMeshDevicesTab extends StatelessWidget {
                   return RouterDeviceItemView(
                     deviceItem: items[index],
                     onButtonTap: () {},
+                    onDeleteAction: () {
+                      return deviceMngmtController.handleRouterMeshDelete(
+                        index,
+                      );
+                    },
                   );
                 },
               );

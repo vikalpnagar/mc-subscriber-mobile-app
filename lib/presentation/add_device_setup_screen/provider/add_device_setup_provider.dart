@@ -1,13 +1,32 @@
+import 'package:family_wifi/core/network/result.dart';
+import 'package:family_wifi/core/utils/alert_state_provider.dart';
+import 'package:family_wifi/core/utils/base_bloc.dart';
+import 'package:family_wifi/core/utils/loading_state_provider.dart';
+import 'package:family_wifi/core/utils/navigator_service.dart';
+import 'package:family_wifi/l10n/app_localization_extension.dart';
+import 'package:family_wifi/presentation/add_device_setup_screen/repository/add_device_setup_repository.dart';
+import 'package:family_wifi/routes/app_routes.dart';
+import 'package:family_wifi/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/app_export.dart';
-import '../models/add_device_setup_model.dart';
-
-class AddDeviceSetupProvider extends ChangeNotifier {
-  AddDeviceSetupModel addDeviceSetupModel = AddDeviceSetupModel();
+class AddDeviceSetupProvider with BaseBloc {
   TextEditingController macAddressController = TextEditingController();
-  bool isLoading = false;
+
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  ValueNotifier<ConfigurationState> configurationState = new ValueNotifier(
+    ConfigurationState.PENDING,
+  );
+
+  late final AddDeviceSetupRepository _repository;
+
+  AddDeviceSetupProvider(
+    LoadingStateProvider loadingStateProvider,
+    AlertStateProvider alertStateProvider,
+    this._repository,
+  ) {
+    initialize(loadingStateProvider, alertStateProvider);
+  }
 
   @override
   void dispose() {
@@ -15,27 +34,25 @@ class AddDeviceSetupProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  void initialize() {
+  void init() {
     // Initialize any required data
   }
 
   String? validateMacAddress(String? value) {
-    if (value?.isEmpty == true) {
-      return 'MAC Address is required';
+    if (value == null || value.trim().isEmpty) {
+      return 'MAC address is required';
     }
-    // Basic MAC address validation
-    final macPattern = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
-    if (!macPattern.hasMatch(value ?? '')) {
+
+    final macRegex = RegExp(r'^([0-9a-f]{2}[:-]){5}([0-9A-Fa-f]{2})$');
+    if (!macRegex.hasMatch(value.trim())) {
       return 'Please enter a valid MAC address';
     }
+
     return null;
   }
 
   Future<void> onNextPressed(BuildContext context) async {
-    final macAddress = macAddressController.text.trim();
-
-    // Validate MAC address
-    if (validateMacAddress(macAddress) != null) {
+    if (!formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please enter a valid MAC address'),
@@ -45,31 +62,38 @@ class AddDeviceSetupProvider extends ChangeNotifier {
       return;
     }
 
-    isLoading = true;
-    notifyListeners();
+    configurationState.value = ConfigurationState.CONFIGURING;
 
     try {
-      // Simulate processing
-      await Future.delayed(Duration(seconds: 1));
+      RegExp specialChars = RegExp(r'[^\w]+');
+      String macAddress = macAddressController.text
+          .trim()
+          .replaceAll(specialChars, '')
+          .toLowerCase();
+      Result result = await _repository.addDevice(macAddress);
 
-      // Update model with the entered MAC address
-      addDeviceSetupModel.macAddress = macAddress;
+      if (result.isSuccess) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(await 'add_device_success'.tr()),
+            backgroundColor: appTheme.colorFF4CAF,
+          ),
+        );
+        configurationState.value = ConfigurationState.CONFIGURED;
+      } else if (result.sessionExpired) {
+        NavigatorService.pushNamedAndRemoveUntil(AppRoutes.loginScreen);
+      } else {
+        showAlert(result.message, title: await 'add_device_failed'.tr());
+        configurationState.value = ConfigurationState.PENDING;
+      }
+    } catch (error) {
+      configurationState.value = ConfigurationState.PENDING;
 
-      isLoading = false;
-      notifyListeners();
-
-      // Navigate to device configuration screen
-      NavigatorService.pushNamed(AppRoutes.deviceConfigurationScreen);
-    } catch (e) {
-      isLoading = false;
-      notifyListeners();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Something went wrong. Please try again.'),
-          backgroundColor: appTheme.redCustom,
-        ),
-      );
+      // Handle error
+      print('Edit Network error: $error');
     }
   }
 }
+
+enum ConfigurationState { PENDING, CONFIGURING, CONFIGURED }

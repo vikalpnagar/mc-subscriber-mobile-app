@@ -15,6 +15,7 @@ class ApiConstants {
   static const String topology = 'topology';
   static const String action = 'action';
   static const String actionConfigure = 'configure';
+  static const String manageDevice = 'subscriber/devices/';
 
   static const int connectionTimeoutSec = 30;
   static const int idleTimeoutSec = 90;

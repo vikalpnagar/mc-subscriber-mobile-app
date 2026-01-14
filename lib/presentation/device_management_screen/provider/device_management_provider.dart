@@ -1,11 +1,21 @@
+import 'dart:async';
+
+import 'package:family_wifi/core/network/result.dart';
+import 'package:family_wifi/core/utils/alert_state_provider.dart';
+import 'package:family_wifi/core/utils/base_bloc.dart';
+import 'package:family_wifi/core/utils/loading_state_provider.dart';
+import 'package:family_wifi/core/utils/navigator_service.dart';
 import 'package:family_wifi/core/utils/streamer.dart';
+import 'package:family_wifi/l10n/app_localization_extension.dart';
 import 'package:family_wifi/presentation/device_management_screen/models/router_device_info_model.dart';
+import 'package:family_wifi/presentation/device_management_screen/repository/device_management_repository.dart';
 import 'package:family_wifi/presentation/home_screen/models/topology_info.dart';
+import 'package:family_wifi/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 
 import '../models/mobile_device_info_model.dart';
 
-class DeviceManagementProvider {
+class DeviceManagementProvider with BaseBloc {
   String? selectedNodeSerial;
 
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
@@ -23,10 +33,17 @@ class DeviceManagementProvider {
   List<RouterDeviceInfoModel>? get routerDevicesInitialData =>
       _routerDevices.valueOrNull;
 
-  DeviceManagementProvider({this.selectedNodeSerial});
+  DeviceManagementRepository? repository;
 
-  void initialize() {
-    // Put any initializations here
+  DeviceManagementProvider.withNode({this.selectedNodeSerial});
+
+  DeviceManagementProvider(
+    LoadingStateProvider loadingStateProvider,
+    AlertStateProvider alertStateProvider, {
+    this.selectedNodeSerial,
+    this.repository,
+  }) {
+    initialize(loadingStateProvider, alertStateProvider);
   }
 
   void handleTopologyInfo(TopologyInfo? topologyInfo) {
@@ -102,6 +119,58 @@ class DeviceManagementProvider {
     //         isPaused: !(_mobileDevicesStreamer.value[index].isPaused ?? false),
     //       );
     // }
+  }
+
+  Future<bool> handleRouterMeshDelete(int indexToDelete) async {
+    Completer<bool> deleteCompleter = Completer<bool>();
+    showAlert(
+      await 'remove_device_confirm_message'.tr(),
+      title: await 'remove_device_confirm_title'.tr(),
+      yesAction: await 'remove_device_confirm_action'.tr(),
+      noAction: 'Cancel',
+      yesHandler: () async {
+        RouterDeviceInfoModel deviceInfo = _routerDevices.value.elementAt(
+          indexToDelete,
+        );
+        bool deleted = await deleteRouterMeshDevice(deviceInfo.deviceName);
+        if (deleted) {
+          _routerDevices.value.remove(deviceInfo);
+          _routerDevices.value = List.of(_routerDevices.value);
+        }
+        deleteCompleter.complete(deleted);
+      },
+      noHandler: () => deleteCompleter.complete(false),
+    );
+    return deleteCompleter.future;
+  }
+
+  Future<bool> deleteRouterMeshDevice(String macAddress) async {
+    try {
+      startLoading();
+
+      RegExp specialChars = RegExp(r'[^\w]+');
+      String macAddressFormatted = macAddress
+          .trim()
+          .replaceAll(specialChars, '')
+          .toLowerCase();
+
+      Result result = await repository!.deleteDevice(macAddressFormatted);
+      dismissLoading();
+
+      if (result.isSuccess) {
+        return true;
+      } else if (result.sessionExpired) {
+        NavigatorService.pushNamedAndRemoveUntil(AppRoutes.loginScreen);
+      } else {
+        showAlert(result.message, title: await 'remove_device_failed'.tr());
+      }
+    } catch (error) {
+      dismissLoading();
+
+      // Handle error
+      print('Remove device error: $error');
+    }
+    return false;
   }
 
   void dispose() {

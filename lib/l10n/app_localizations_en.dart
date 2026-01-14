@@ -37,6 +37,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Something went wrong. Pls try again later.';
 
   @override
+  String get error_not_found => 'Resource not found. Pls try again later.';
+
+  @override
+  String get error_timeout => 'Request timed out. Pls try again later.';
+
+  @override
   String get invalid_signup_result =>
       'Invalid signup response received from server.';
 
@@ -71,4 +77,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalid_response => 'Invalid data received from server.';
+
+  @override
+  String get add_device_success => 'Device added successfully';
+
+  @override
+  String get add_device_failed => 'Failed to add device';
+
+  @override
+  String get remove_device_confirm_title => 'Remove Device';
+
+  @override
+  String get remove_device_confirm_message =>
+      'Are you sure you want to remove this device?';
+
+  @override
+  String get remove_device_confirm_action => 'Remove';
+
+  @override
+  String get remove_device_failed => 'Failed to remove device';
 }

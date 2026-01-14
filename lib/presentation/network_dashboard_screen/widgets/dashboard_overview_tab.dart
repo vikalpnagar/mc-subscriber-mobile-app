@@ -139,8 +139,13 @@ class _DashboardOverviewTabState extends State<DashboardOverviewTab>
   Widget _buildAddMeshDeviceButton() {
     return CustomButton(
       text: 'Add another mesh device',
-      onPressed: () {
-        NavigatorService.pushNamed(AppRoutes.addDeviceSetupScreen);
+      onPressed: () async {
+        bool? deviceAdded = await NavigatorService.pushNamed(
+          AppRoutes.addDeviceSetupScreen,
+        );
+        if (deviceAdded ?? false) {
+          context.read<HomeProvider>().fetchLatestData(showPopupLoader: false);
+        }
       },
       backgroundColor: appTheme.blue_gray_900,
       textColor: appTheme.white_A700,
@@ -287,7 +292,7 @@ class _DashboardOverviewTabState extends State<DashboardOverviewTab>
             value: homeController.topologyInfo,
             child: Provider<DeviceManagementProvider>(
               create: (BuildContext context) {
-                final deviceMngmtProvider = DeviceManagementProvider(
+                final deviceMngmtProvider = DeviceManagementProvider.withNode(
                   selectedNodeSerial:
                       (selectedNode.key!.value as GraphNodeInfo).addtlInfo,
                 );

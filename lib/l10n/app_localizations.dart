@@ -148,6 +148,18 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Pls try again later.'**
   String get something_went_wrong;
 
+  /// No description provided for @error_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'Resource not found. Pls try again later.'**
+  String get error_not_found;
+
+  /// No description provided for @error_timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Request timed out. Pls try again later.'**
+  String get error_timeout;
+
   /// No description provided for @invalid_signup_result.
   ///
   /// In en, this message translates to:
@@ -213,6 +225,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid data received from server.'**
   String get invalid_response;
+
+  /// No description provided for @add_device_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Device added successfully'**
+  String get add_device_success;
+
+  /// No description provided for @add_device_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add device'**
+  String get add_device_failed;
+
+  /// No description provided for @remove_device_confirm_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Device'**
+  String get remove_device_confirm_title;
+
+  /// No description provided for @remove_device_confirm_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this device?'**
+  String get remove_device_confirm_message;
+
+  /// No description provided for @remove_device_confirm_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove_device_confirm_action;
+
+  /// No description provided for @remove_device_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to remove device'**
+  String get remove_device_failed;
 }
 
 class _AppLocalizationsDelegate

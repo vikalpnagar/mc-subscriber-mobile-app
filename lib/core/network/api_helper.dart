@@ -6,6 +6,7 @@ import 'package:family_wifi/core/network/api_constants.dart';
 import 'package:family_wifi/core/network/api_exception.dart';
 import 'package:family_wifi/core/network/persistent_io_client.dart';
 import 'package:family_wifi/core/utils/print_log_helper.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 class ApiHelper {
@@ -99,9 +100,15 @@ class ApiHelper {
       logPrint('Response Code--->$responseCode');
       dynamic json;
       if (utf8Decode) {
-        json = jsonDecode(utf8.decode(response.bodyBytes));
+        Uint8List responseBodyBytes = response.bodyBytes;
+        if (responseBodyBytes.isNotEmpty) {
+          json = jsonDecode(utf8.decode(responseBodyBytes));
+        }
       } else {
-        json = jsonDecode(response.body);
+        String responseBody = response.body;
+        if (responseBody.isNotEmpty) {
+          json = jsonDecode(responseBody);
+        }
       }
       // printWrapped('Response Body--->$json');
       printWrapped('Response Body--->${response.body}');
@@ -118,7 +125,7 @@ class ApiHelper {
             return json;
           }
         } else {
-          return json;
+          return json ?? new Map();
         }
       } else {
         String? errorDesc = extractErrorDescription(json);

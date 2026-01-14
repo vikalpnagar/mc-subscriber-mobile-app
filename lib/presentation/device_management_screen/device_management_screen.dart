@@ -1,3 +1,5 @@
+import 'package:family_wifi/core/network/api_helper.dart';
+import 'package:family_wifi/presentation/device_management_screen/repository/device_management_repository.dart';
 import 'package:family_wifi/presentation/device_management_screen/widgets/mobile_devices_tab.dart';
 import 'package:family_wifi/presentation/device_management_screen/widgets/router_mesh_devices_tab.dart';
 import 'package:family_wifi/presentation/home_screen/models/topology_info.dart';
@@ -12,21 +14,37 @@ class DeviceManagementScreen extends StatefulWidget {
 
   static Widget builder(BuildContext context) {
     final homeController = Provider.of<HomeProvider>(context, listen: false);
-    return ValueListenableProvider<TopologyInfo?>.value(
-      value: homeController.topologyInfo,
-      child: ProxyProvider<TopologyInfo?, DeviceManagementProvider>(
-        update:
-            (
-              BuildContext context,
-              TopologyInfo? topologyInfo,
-              DeviceManagementProvider? previous,
-            ) {
-              final deviceMngmtProvider =
-                  previous ?? DeviceManagementProvider();
-              deviceMngmtProvider.handleTopologyInfo(topologyInfo);
-              return deviceMngmtProvider;
-            },
-        child: const DeviceManagementScreen(),
+    return ProxyProvider<ApiHelper, DeviceManagementRepository>(
+      update: (_, apiHelper, addDeviceRepo) {
+        return addDeviceRepo ?? DeviceManagementRepository(apiHelper);
+      },
+      child: ValueListenableProvider<TopologyInfo?>.value(
+        value: homeController.topologyInfo,
+        child:
+            ProxyProvider2<
+              TopologyInfo?,
+              DeviceManagementRepository,
+              DeviceManagementProvider
+            >(
+              update:
+                  (
+                    BuildContext context,
+                    TopologyInfo? topologyInfo,
+                    DeviceManagementRepository repository,
+                    DeviceManagementProvider? previous,
+                  ) {
+                    final deviceMngmtProvider =
+                        previous ??
+                        DeviceManagementProvider(
+                          homeController.loadingStateProvider,
+                          homeController.alertStateProvider,
+                          repository: repository,
+                        );
+                    deviceMngmtProvider.handleTopologyInfo(topologyInfo);
+                    return deviceMngmtProvider;
+                  },
+              child: const DeviceManagementScreen(),
+            ),
       ),
     );
   }
