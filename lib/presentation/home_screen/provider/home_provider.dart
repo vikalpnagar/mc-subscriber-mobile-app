@@ -41,6 +41,9 @@ class HomeProvider with BaseBloc {
 
   @override
   void dispose() {
+    pageController.dispose();
+    selectedNavBarItem.dispose();
+    subscriberInfo.dispose();
     super.dispose();
   }
 
