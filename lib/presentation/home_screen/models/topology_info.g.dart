@@ -59,11 +59,13 @@ Node _$NodeFromJson(Map<String, dynamic> json) => Node(
       ?.map((e) => AccessPoint.fromJson(e as Map<String, dynamic>))
       .toList(),
   serial: json['serial'] as String?,
+  uptime: (json['uptime'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$NodeToJson(Node instance) => <String, dynamic>{
   'aps': instance.aps,
   'serial': instance.serial,
+  'uptime': instance.uptime,
 };
 
 AccessPoint _$AccessPointFromJson(Map<String, dynamic> json) => AccessPoint(
@@ -95,18 +97,18 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
   connected: (json['connected'] as num?)?.toInt(),
   inactive: (json['inactive'] as num?)?.toInt(),
   rssi: (json['rssi'] as num?)?.toInt(),
-  rxRateBitrate: (json['rxRateBitrate'] as num?)?.toInt(),
-  rxRateChwidth: (json['rxRateChwidth'] as num?)?.toInt(),
+  rxRateBitrate: (json['rx_rate_bitrate'] as num?)?.toInt(),
+  rxRateChwidth: (json['rx_rate_chwidth'] as num?)?.toInt(),
   station: json['station'] as String?,
-  txRateBitrate: (json['txRateBitrate'] as num?)?.toInt(),
+  txRateBitrate: (json['tx_rate_bitrate'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
   'connected': instance.connected,
   'inactive': instance.inactive,
   'rssi': instance.rssi,
-  'rxRateBitrate': instance.rxRateBitrate,
-  'rxRateChwidth': instance.rxRateChwidth,
+  'rx_rate_bitrate': instance.rxRateBitrate,
+  'rx_rate_chwidth': instance.rxRateChwidth,
   'station': instance.station,
-  'txRateBitrate': instance.txRateBitrate,
+  'tx_rate_bitrate': instance.txRateBitrate,
 };

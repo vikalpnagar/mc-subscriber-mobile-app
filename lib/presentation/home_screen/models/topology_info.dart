@@ -43,8 +43,9 @@ class Mesh {
 class Node {
   List<AccessPoint>? aps;
   String? serial;
+  int? uptime;
 
-  Node({this.aps, this.serial});
+  Node({this.aps, this.serial, this.uptime});
 
   factory Node.fromJson(Map<String, dynamic> json) => _$NodeFromJson(json);
   Map<String, dynamic> toJson() => _$NodeToJson(this);
@@ -80,9 +81,12 @@ class Client {
   int? connected;
   int? inactive;
   int? rssi;
+  @JsonKey(name: 'rx_rate_bitrate')
   int? rxRateBitrate;
+  @JsonKey(name: 'rx_rate_chwidth')
   int? rxRateChwidth;
   String? station;
+  @JsonKey(name: 'tx_rate_bitrate')
   int? txRateBitrate;
 
   Client({

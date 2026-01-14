@@ -1,17 +1,36 @@
+import 'package:family_wifi/core/utils/print_log_helper.dart';
+import 'package:family_wifi/presentation/device_management_screen/models/mobile_device_info_model.dart';
+import 'package:family_wifi/presentation/device_management_screen/models/router_device_info_model.dart';
+import 'package:family_wifi/presentation/device_management_screen/widgets/router_device_item_view.dart';
+import 'package:family_wifi/presentation/home_screen/models/topology_info.dart';
+import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/app_export.dart';
-import '../../widgets/custom_app_bar.dart';
 import './provider/device_management_provider.dart';
-import './widgets/device_item_widget.dart';
+import 'widgets/mobile_device_item_view.dart';
 
 class DeviceManagementScreen extends StatefulWidget {
   const DeviceManagementScreen({Key? key}) : super(key: key);
 
   static Widget builder(BuildContext context) {
-    return ChangeNotifierProvider<DeviceManagementProvider>(
-      create: (context) => DeviceManagementProvider()..initialize(),
-      child: const DeviceManagementScreen(),
+    final homeController = Provider.of<HomeProvider>(context, listen: false);
+    return ValueListenableProvider<TopologyInfo?>.value(
+      value: homeController.topologyInfo,
+      child: ProxyProvider<TopologyInfo?, DeviceManagementProvider>(
+        update:
+            (
+              BuildContext context,
+              TopologyInfo? topologyInfo,
+              DeviceManagementProvider? previous,
+            ) {
+              final deviceMngmtProvider =
+                  previous ?? DeviceManagementProvider();
+              deviceMngmtProvider.handleTopologyInfo(topologyInfo);
+              return deviceMngmtProvider;
+            },
+        child: const DeviceManagementScreen(),
+      ),
     );
   }
 
@@ -21,94 +40,152 @@ class DeviceManagementScreen extends StatefulWidget {
 
 class _DeviceManagementScreenState extends State<DeviceManagementScreen>
     with TickerProviderStateMixin {
+  late final DeviceManagementProvider deviceMngmtController;
+  late final HomeProvider homeController;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    deviceMngmtController = Provider.of<DeviceManagementProvider>(
+      context,
+      listen: false,
+    );
+    // deviceMngmtController.initialize();
+    homeController = Provider.of<HomeProvider>(context, listen: false);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    deviceMngmtController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DeviceManagementProvider>(
-      builder: (context, provider, child) {
-        return Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: appTheme.blue_gray_700, width: 1.h),
-                ),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                tabs: [
-                  Tab(
-                    child: Text(
-                      'Mobile devices',
-                      style: TextStyleHelper.instance.body14BoldInter,
-                    ),
-                  ),
-                  Tab(
-                    child: Text(
-                      'Router/mesh devices',
-                      style: TextStyleHelper.instance.body14BoldInter,
-                    ),
-                  ),
-                ],
-                labelColor: appTheme.white_A700,
-                unselectedLabelColor: appTheme.indigo_200,
-                indicator: BoxDecoration(),
-                dividerColor: appTheme.transparentCustom,
-                onTap: (index) {
-                  if (index == 1) {
-                    NavigatorService.pushNamed(
-                      AppRoutes.networkDevicesManagementScreen,
-                    );
-                  }
-                },
-              ),
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildMobileDevicesTab(provider),
-                  Container(), // Empty container for second tab
-                ],
-              ),
-            ),
-          ],
-        );
+    return _buildMainContent();
+  }
+
+  Widget _buildMainContent() {
+    return RefreshIndicator(
+      // Customize which scroll notifications the RefreshIndicator listens to.
+      notificationPredicate: (notification) {
+        // return notification.depth == 2; // Common solution for TabBarView
+        // A more general solution to allow the outer scroll view to trigger the refresh
+        return notification.depth == 2;
       },
+      key: deviceMngmtController.refreshIndicatorKey,
+      onRefresh: () => homeController.fetchTopologyInfo(),
+      child: NestedScrollView(
+        floatHeaderSlivers: true,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return [SliverToBoxAdapter(child: _buildTabSection())];
+        },
+        body: Padding(
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          child: _buildTabContent(),
+        ),
+      ),
     );
   }
 
-  Widget _buildMobileDevicesTab(DeviceManagementProvider provider) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 12.h),
-      child: ListView.builder(
-        itemCount: provider.mobileDevices.length,
-        itemBuilder: (context, index) {
-          return DeviceItemWidget(
-            device: provider.mobileDevices[index],
-            onIconTap: () {
-              NavigatorService.pushNamed(
-                AppRoutes.networkDevicesManagementScreen,
-              );
-            },
-            onPauseTap: () {
-              provider.toggleDevicePause(provider.mobileDevices[index]);
-            },
-          );
+  Widget _buildTabSection() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: appTheme.blue_gray_700, width: 1.h),
+        ),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        padding: EdgeInsets.symmetric(horizontal: 16.h),
+        indicator: UnderlineTabIndicator(
+          borderSide: BorderSide(color: appTheme.white_A700, width: 2.h),
+        ),
+        indicatorSize: TabBarIndicatorSize.label,
+        labelColor: appTheme.white_A700,
+        unselectedLabelColor: appTheme.indigo_200,
+        labelStyle: TextStyleHelper.instance.body14BoldInter,
+        unselectedLabelStyle: TextStyleHelper.instance.body14BoldInter,
+        tabs: [
+          Tab(text: 'Mobile devices'),
+          Tab(text: 'Router/mesh devices'),
+        ],
+        onTap: (index) {
+          _tabController.animateTo(index);
         },
+      ),
+    );
+  }
+
+  Widget _buildTabContent() {
+    return TabBarView(
+      controller: _tabController,
+      children: [_buildMobileDevicesTab(), _buildRouterMeshDevicesTab()],
+    );
+  }
+
+  Widget _buildMobileDevicesTab() {
+    return StreamProvider<List<MobileDeviceInfoModel>?>.value(
+      initialData: deviceMngmtController.mobileDevicesInitialData,
+      value: deviceMngmtController.mobileDevices,
+      child: Consumer<List<MobileDeviceInfoModel>?>(
+        builder:
+            (
+              BuildContext context,
+              List<MobileDeviceInfoModel>? value,
+              Widget? child,
+            ) {
+              if (value != null) {
+                return ListView.builder(
+                  itemCount: value.length,
+                  itemBuilder: (context, index) {
+                    return MobileDeviceItemView(
+                      device: value[index],
+                      /*onIconTap: () {
+                        NavigatorService.pushNamed(
+                          AppRoutes.networkDevicesManagementScreen,
+                        );
+                      },*/
+                      onPauseTap: () {
+                        deviceMngmtController.toggleDevicePause(value[index]);
+                      },
+                    );
+                  },
+                );
+              }
+              return SizedBox.shrink();
+            },
+      ),
+    );
+  }
+
+  Widget _buildRouterMeshDevicesTab() {
+    return StreamProvider<List<RouterDeviceInfoModel>?>.value(
+      initialData: deviceMngmtController.routerDevicesInitialData,
+      value: deviceMngmtController.routerDevices,
+      child: Consumer<List<RouterDeviceInfoModel>?>(
+        builder:
+            (
+              BuildContext context,
+              List<RouterDeviceInfoModel>? value,
+              Widget? child,
+            ) {
+              if (value != null) {
+                return ListView.builder(
+                  itemCount: value.length,
+                  itemBuilder: (context, index) {
+                    return RouterDeviceItemView(
+                      deviceItem: value[index],
+                      onButtonTap: () {},
+                    );
+                  },
+                );
+              }
+              return SizedBox.shrink();
+            },
       ),
     );
   }
