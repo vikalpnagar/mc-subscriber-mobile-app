@@ -44,6 +44,7 @@ class LoginRepository {
   }
 
   Future<void> saveAccessToken(accessToken) async {
+    _apiHelper.accessToken = accessToken;
     return _sharedPreferencesHelper.setAccessToken(accessToken);
   }
 

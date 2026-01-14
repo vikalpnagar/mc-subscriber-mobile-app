@@ -36,5 +36,23 @@ class HomeProvider with BaseBloc {
     super.dispose();
   }
 
-  void init() {}
+  void init() {
+    initialSubscribe();
+  }
+
+  Future<void> initialSubscribe() async {
+    startLoading();
+
+    try {
+      Result result = await _repository.subscriber();
+
+      dismissLoading();
+      if (result.isSuccess) {
+      } else {
+        // showAlert(result.message, title: await 'login_failed'.tr());
+      }
+    } catch (error) {
+      dismissLoading();
+    }
+  }
 }

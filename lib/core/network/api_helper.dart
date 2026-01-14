@@ -12,7 +12,7 @@ class ApiHelper {
   late final String _host, _portAuth, _portDefault, _suffix;
   Map<String, String> get _headers => {'Content-Type': 'application/json'};
 
-  late final PersistentIoClient persistentIoClient;
+  late final PersistentIoClient client;
 
   ApiHelper() {
     if (ApiConstants.developmentMode) {
@@ -37,11 +37,15 @@ class ApiHelper {
     httpClient.idleTimeout = const Duration(
       seconds: ApiConstants.idleTimeoutSec,
     );
-    persistentIoClient = PersistentIoClient(httpClient);
+    client = PersistentIoClient(httpClient);
+  }
+
+  set accessToken(token) {
+    client.accessToken = token;
   }
 
   close() {
-    persistentIoClient.close();
+    client.close();
   }
 
   Future<Map<String, dynamic>> request(
@@ -68,19 +72,27 @@ class ApiHelper {
       logPrint('URL--->${uri.toString()}');
       switch (requestType) {
         case RequestType.GET:
-          response = await http.get(uri, headers: _headers);
+          response = await client.get(uri, headers: _headers);
           break;
         case RequestType.POST:
           encodedBody = _prepareJSONEncoded(parameters, requestBody);
           printWrapped('Request Body--->$encodedBody');
-          response = await http.post(uri, headers: _headers, body: encodedBody);
+          response = await client.post(
+            uri,
+            headers: _headers,
+            body: encodedBody,
+          );
           break;
         case RequestType.PUT:
           encodedBody = _prepareJSONEncoded(parameters, requestBody);
-          response = await http.put(uri, headers: _headers, body: encodedBody);
+          response = await client.put(
+            uri,
+            headers: _headers,
+            body: encodedBody,
+          );
           break;
         case RequestType.DELETE:
-          response = await http.delete(uri, headers: _headers);
+          response = await client.delete(uri, headers: _headers);
           break;
       }
       int responseCode = response.statusCode;
