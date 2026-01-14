@@ -24,7 +24,6 @@ import '../presentation/speed_test_progress_screen/speed_test_progress_screen.da
 import '../presentation/speed_test_history_screen/speed_test_history_screen.dart';
 import '../presentation/speed_test_results_screen/speed_test_results_screen.dart';
 import '../presentation/device_management_screen/device_management_screen.dart';
-import '../presentation/network_devices_management_screen/network_devices_management_screen.dart';
 import '../presentation/router_detail_screen/router_detail_screen.dart';
 import '../presentation/edit_network_screen/edit_network_screen.dart';
 import '../presentation/edit_guest_network_screen/edit_guest_network_screen.dart';
@@ -102,7 +101,6 @@ class AppRoutes {
     speedTestHistoryScreen: SpeedTestHistoryScreen.builder,
     speedTestResultsScreen: SpeedTestResultsScreen.builder,
     deviceManagementScreen: DeviceManagementScreen.builder,
-    networkDevicesManagementScreen: NetworkDevicesManagementScreen.builder,
     routerDetailScreen: RouterDetailScreen.builder,
     editNetworkScreen: EditNetworkScreen.builder,
     editGuestNetworkScreen: EditGuestNetworkScreen.builder,
