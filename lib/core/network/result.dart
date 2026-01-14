@@ -5,7 +5,7 @@ class Result<T> {
 
   factory Result.success(T value) = SuccessStateResult<T>;
 
-  factory Result.error(T msg) = ErrorStateResult<T>;
+  factory Result.error(T msg, {bool sessionExpired}) = ErrorStateResult<T>;
 }
 
 class LoadingStateResult<T> extends Result<T> {
@@ -14,8 +14,9 @@ class LoadingStateResult<T> extends Result<T> {
 }
 
 class ErrorStateResult<T> extends Result<T> {
-  ErrorStateResult(this.msg) : super._();
+  ErrorStateResult(this.msg, {this.sessionExpired = false}) : super._();
   final T msg;
+  final bool sessionExpired;
 }
 
 class SuccessStateResult<T> extends Result<T> {
@@ -27,6 +28,10 @@ extension ResultExtension<T> on Result<T> {
   bool get isLoading => this is LoadingStateResult;
   bool get isSuccess => this is SuccessStateResult;
   bool get isError => this is ErrorStateResult;
+  bool get sessionExpired => this is ErrorStateResult
+      ? (this as ErrorStateResult<T>).sessionExpired
+      : false;
+
   T? get message {
     if (this is LoadingStateResult<T>) {
       return (this as LoadingStateResult<T>).msg;

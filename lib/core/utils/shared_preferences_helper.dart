@@ -34,12 +34,26 @@ class SharedPreferencesHelper {
   }
 
   Future<String?> get accessToken {
-    final storage = FlutterSecureStorage();
+    AndroidOptions _getAndroidOptions() =>
+        const AndroidOptions(encryptedSharedPreferences: true);
+    IOSOptions _getIosOptions() =>
+        const IOSOptions(accessibility: KeychainAccessibility.first_unlock);
+    final storage = FlutterSecureStorage(
+      aOptions: _getAndroidOptions(),
+      iOptions: _getIosOptions(),
+    );
     return storage.read(key: _accessToken);
   }
 
   Future<void> removeAccessToken() async {
-    final storage = FlutterSecureStorage();
+    AndroidOptions _getAndroidOptions() =>
+        const AndroidOptions(encryptedSharedPreferences: true);
+    IOSOptions _getIosOptions() =>
+        const IOSOptions(accessibility: KeychainAccessibility.first_unlock);
+    final storage = FlutterSecureStorage(
+      aOptions: _getAndroidOptions(),
+      iOptions: _getIosOptions(),
+    );
     return storage.delete(key: _accessToken);
   }
 

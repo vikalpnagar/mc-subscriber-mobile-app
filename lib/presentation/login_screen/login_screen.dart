@@ -96,7 +96,14 @@ class _LoginScreenState extends State<LoginScreen> {
           title: 'Login',
           hasLeading: true,
           leadingIcon: ImageConstant.imgDepth4Frame0WhiteA700,
-          onLeadingPressed: () => NavigatorService.goBack(),
+          onLeadingPressed: () {
+            bool canPop = Navigator.canPop(context);
+            if (canPop) {
+              NavigatorService.goBack();
+            } else {
+              NavigatorService.popAndPushNamed(AppRoutes.networkWelcomeScreen);
+            }
+          },
           backgroundColor: appTheme.gray_900,
           titleColor: appTheme.white_A700,
         ),

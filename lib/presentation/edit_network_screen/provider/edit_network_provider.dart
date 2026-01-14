@@ -90,6 +90,8 @@ class EditNetworkProvider with BaseBloc {
           ),
         );
         NavigatorService.goBack();
+      } else if (result.sessionExpired) {
+        NavigatorService.pushNamedAndRemoveUntil(AppRoutes.loginScreen);
       } else {
         showAlert(result.message, title: await 'edit_network_failed'.tr());
       }

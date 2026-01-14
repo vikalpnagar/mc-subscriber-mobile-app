@@ -47,6 +47,10 @@ class LoginRepository {
     return _sharedPreferencesHelper.setAccessToken(accessToken);
   }
 
+  Future<void> removeAccessToken() async {
+    return _sharedPreferencesHelper.removeAccessToken();
+  }
+
   Future<Result> handleApiException(dynamic exception) async {
     if (exception is ApiException) {
       return Result.error(

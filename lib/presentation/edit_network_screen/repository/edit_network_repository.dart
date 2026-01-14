@@ -48,9 +48,13 @@ class EditNetworkRepository {
 
   Future<Result> handleApiException(dynamic exception) async {
     if (exception is ApiException) {
-      return Result.error(
-        exception.translate ? await exception.message.tr() : exception.message,
-      );
+      String errorMsg = exception.translate
+          ? await exception.message.tr()
+          : exception.message;
+      if (isUnauthorized(exception.data)) {
+        return Result.error(errorMsg, sessionExpired: true);
+      }
+      return Result.error(errorMsg);
     } else if (exception is TimeoutException) {
       bool available = await ApiHelper.check(checkActiveInternet: true);
       return Result.error(

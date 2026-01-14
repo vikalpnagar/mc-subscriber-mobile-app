@@ -31,6 +31,7 @@ class LoginProvider with BaseBloc {
   }
 
   void init() {
+    _repository.removeAccessToken();
     emailController.clear();
     passwordController.clear();
   }

@@ -103,12 +103,17 @@ class ApiHelper {
       } else {
         json = jsonDecode(response.body);
       }
-      printWrapped('Response Body--->$json');
+      // printWrapped('Response Body--->$json');
+      printWrapped('Response Body--->${response.body}');
       if (responseCode >= 200 && responseCode < 300) {
         if (checkStatus) {
           String? errorDescription = extractErrorDescription(json);
           if (errorDescription != null) {
-            throw ApiException(errorDescription, translate: false, data: json);
+            throw ApiException(
+              errorDescription,
+              translate: false,
+              data: responseCode,
+            );
           } else {
             return json;
           }
@@ -118,11 +123,12 @@ class ApiHelper {
       } else {
         String? errorDesc = extractErrorDescription(json);
         if (errorDesc != null) {
-          throw ApiException(errorDesc, translate: false, data: json);
+          throw ApiException(errorDesc, translate: false, data: responseCode);
         } else {
           throw ApiException(
             handleErrorResponseCode(responseCode),
             reportToCrashlytics: true,
+            data: responseCode,
           );
         }
       }
@@ -228,5 +234,8 @@ String handleErrorResponseCode(int responseCode) {
       return 'something_went_wrong';
   }
 }
+
+bool isUnauthorized(dynamic data) =>
+    data != null && data is int && (data == 401 || data == 403);
 
 enum RequestType { GET, POST, PUT, DELETE }
