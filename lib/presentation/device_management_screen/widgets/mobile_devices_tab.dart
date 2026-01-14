@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MobileDevicesTab extends StatelessWidget {
-  const MobileDevicesTab({super.key});
+  late final bool shrinkWrap;
+  MobileDevicesTab({super.key, this.shrinkWrap = false});
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +31,7 @@ class MobileDevicesTab extends StatelessWidget {
               final items = value ?? [];
               return ListView.builder(
                 physics: AlwaysScrollableScrollPhysics(),
+                shrinkWrap: shrinkWrap,
                 itemCount: itemCount,
                 itemBuilder: (context, index) {
                   return MobileDeviceItemView(

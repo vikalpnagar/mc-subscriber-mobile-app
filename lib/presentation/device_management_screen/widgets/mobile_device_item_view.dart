@@ -39,9 +39,11 @@ class MobileDeviceItemView extends StatelessWidget {
               spacing: 4.h,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  device.deviceName,
-                  style: TextStyleHelper.instance.title16MediumInter,
+                FittedBox(
+                  child: Text(
+                    device.deviceName,
+                    style: TextStyleHelper.instance.title16MediumInter,
+                  ),
                 ),
                 FittedBox(
                   child: Text(

@@ -1,5 +1,9 @@
 import 'package:family_wifi/core/app_export.dart';
+import 'package:family_wifi/presentation/device_management_screen/provider/device_management_provider.dart';
+import 'package:family_wifi/presentation/device_management_screen/widgets/mobile_devices_tab.dart';
 import 'package:family_wifi/presentation/home_screen/models/subscriber_info.dart';
+import 'package:family_wifi/presentation/home_screen/models/topology_info.dart'
+    hide Node;
 import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
 import 'package:family_wifi/presentation/network_dashboard_screen/models/network_item_model.dart';
 import 'package:family_wifi/presentation/network_dashboard_screen/provider/network_dashboard_provider.dart';
@@ -107,25 +111,28 @@ class _DashboardOverviewTabState extends State<DashboardOverviewTab>
 
   Widget buildNode(Node node) {
     GraphNodeInfo nodeInfo = node.key!.value as GraphNodeInfo;
-    return Container(
-      // width: 52.0,
-      // height: 52.0,
-      padding: EdgeInsets.all(16),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        border: Border.all(color: nodeInfo.color!),
-      ),
-      child: nodeInfo.icon != null
-          ? Icon(nodeInfo.icon, color: nodeInfo.color, size: 24.0)
-          : Text(
-              nodeInfo.label,
-              style: TextStyleHelper.instance.title18BoldInter.copyWith(
-                color: nodeInfo.color,
+    return GestureDetector(
+      onTap: () => onNodeSelected(node),
+      child: Container(
+        // width: 52.0,
+        // height: 52.0,
+        padding: EdgeInsets.all(16),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+          border: Border.all(color: nodeInfo.color!),
+        ),
+        child: nodeInfo.icon != null
+            ? Icon(nodeInfo.icon, color: nodeInfo.color, size: 24.0)
+            : Text(
+                nodeInfo.label,
+                style: TextStyleHelper.instance.title18BoldInter.copyWith(
+                  color: nodeInfo.color,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
+      ),
     );
   }
 
@@ -266,6 +273,77 @@ class _DashboardOverviewTabState extends State<DashboardOverviewTab>
           );
         },
       ),
+    );
+  }
+
+  void onNodeSelected(Node selectedNode) {
+    final homeController = context.read<HomeProvider>();
+    showAdaptiveDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          child: ValueListenableProvider<TopologyInfo?>.value(
+            value: homeController.topologyInfo,
+            child: Provider<DeviceManagementProvider>(
+              create: (BuildContext context) {
+                final deviceMngmtProvider = DeviceManagementProvider(
+                  selectedNodeSerial:
+                      (selectedNode.key!.value as GraphNodeInfo).addtlInfo,
+                );
+                deviceMngmtProvider.handleTopologyInfo(
+                  homeController.topologyInfo.value,
+                );
+                return deviceMngmtProvider;
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 8.0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Mobile Device Clients',
+                            style: TextStyleHelper.instance.title18BoldInter,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => NavigatorService.goBack(),
+                          icon: Icon(Icons.close_rounded),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(4.0),
+                        topRight: const Radius.circular(4.0),
+                        bottomLeft: const Radius.circular(32.0),
+                        bottomRight: const Radius.circular(32.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 1.0,
+                          vertical: 1.0,
+                        ),
+                        child: MobileDevicesTab(shrinkWrap: true),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -6,20 +6,24 @@ import 'package:flutter/material.dart';
 import '../models/mobile_device_info_model.dart';
 
 class DeviceManagementProvider {
+  String? selectedNodeSerial;
+
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
 
-  Streamer<List<MobileDeviceInfoModel>> _mobileDevices = new Streamer();
+  final Streamer<List<MobileDeviceInfoModel>> _mobileDevices = new Streamer();
   Stream<List<MobileDeviceInfoModel>?> get mobileDevices =>
       _mobileDevices.stream;
   List<MobileDeviceInfoModel>? get mobileDevicesInitialData =>
       _mobileDevices.valueOrNull;
 
-  Streamer<List<RouterDeviceInfoModel>> _routerDevices = new Streamer();
+  final Streamer<List<RouterDeviceInfoModel>> _routerDevices = new Streamer();
   Stream<List<RouterDeviceInfoModel>?> get routerDevices =>
       _routerDevices.stream;
   List<RouterDeviceInfoModel>? get routerDevicesInitialData =>
       _routerDevices.valueOrNull;
+
+  DeviceManagementProvider({this.selectedNodeSerial});
 
   void initialize() {
     // Put any initializations here
@@ -27,23 +31,40 @@ class DeviceManagementProvider {
 
   void handleTopologyInfo(TopologyInfo? topologyInfo) {
     if (topologyInfo != null && (topologyInfo.nodes?.isNotEmpty ?? false)) {
-      _mobileDevices.value = topologyInfo.nodes!
+      List<Node> topologyNodes = topologyInfo.nodes!;
+      if (selectedNodeSerial?.isNotEmpty ?? false) {
+        topologyNodes = topologyNodes
+            .where((tpNode) => tpNode.serial == selectedNodeSerial)
+            .toList();
+      }
+      _mobileDevices.value = topologyNodes
           .map((tpNode) {
-            return tpNode.aps?.map((apNode) {
-              return apNode.clients?.map((clientNode) {
-                return MobileDeviceInfoModel(
-                  id: '4',
-                  deviceName: clientNode.station ?? 'NA',
-                  uploadSpeed: '${clientNode.txRateBitrate.bpsToMbps} Mbps ↑',
-                  downloadSpeed: '${clientNode.rxRateBitrate.bpsToMbps} Mbps ↓',
-                );
+            if (selectedNodeSerial == null ||
+                selectedNodeSerial == tpNode.serial) {
+              return tpNode.aps?.map((apNode) {
+                return apNode.clients?.map((clientNode) {
+                  return MobileDeviceInfoModel(
+                    id: '4',
+                    deviceName: clientNode.station ?? 'NA',
+                    uploadSpeed: '${clientNode.txRateBitrate.bpsToMbps} Mbps ↑',
+                    downloadSpeed:
+                        '${clientNode.rxRateBitrate.bpsToMbps} Mbps ↓',
+                  );
+                });
               });
-            });
+            }
           })
           .deepFlatten<MobileDeviceInfoModel>()
           .toList();
 
-      _routerDevices.value = topologyInfo.nodes!.map((tpNode) {
+      // _mobileDevices.value = List.from(
+      //   _mobileDevices.value..addAll(List.from(_mobileDevices.value)),
+      // );
+      // _mobileDevices.value = List.from(
+      //   _mobileDevices.value..addAll(List.from(_mobileDevices.value)),
+      // );
+
+      _routerDevices.value = topologyNodes.map((tpNode) {
         int noOfClients =
             tpNode.aps?.fold<int>(
               0,
@@ -65,8 +86,8 @@ class DeviceManagementProvider {
       if (_mobileDevices.hasValue) {
         _mobileDevices.value = null;
       }
-      if (_mobileDevices.hasValue) {
-        _mobileDevices.value = null;
+      if (_routerDevices.hasValue) {
+        _routerDevices.value = null;
       }
     }
   }

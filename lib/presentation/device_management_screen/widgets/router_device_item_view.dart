@@ -37,10 +37,12 @@ class RouterDeviceItemView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  deviceItem.deviceName,
-                  style: TextStyleHelper.instance.title16MediumInter.copyWith(
-                    height: 1.25,
+                FittedBox(
+                  child: Text(
+                    deviceItem.deviceName,
+                    style: TextStyleHelper.instance.title16MediumInter.copyWith(
+                      height: 1.25,
+                    ),
                   ),
                 ),
                 SizedBox(height: 4.h),
