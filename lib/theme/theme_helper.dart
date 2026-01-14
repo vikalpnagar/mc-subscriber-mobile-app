@@ -12,12 +12,12 @@ class ThemeHelper {
 
   // A map of custom color themes supported by the app
   Map<String, LightCodeColors> _supportedCustomColor = {
-    'lightCode': LightCodeColors()
+    'lightCode': LightCodeColors(),
   };
 
   // A map of color schemes supported by the app
   Map<String, ColorScheme> _supportedColorScheme = {
-    'lightCode': ColorSchemes.lightCodeColorScheme
+    'lightCode': ColorSchemes.lightCodeColorScheme,
   };
 
   /// Returns the lightCode colors for the current theme.

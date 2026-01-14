@@ -1,3 +1,4 @@
+import 'package:family_wifi/presentation/home_screen/home_screen.dart';
 import 'package:flutter/material.dart';
 import '../presentation/onboarding_screen/onboarding_screen.dart';
 import '../presentation/network_welcome_screen/network_welcome_screen.dart';
@@ -40,6 +41,7 @@ class AppRoutes {
   static const String signUpScreen = '/sign_up_screen';
   static const String passwordResetConfirmationScreenTwo =
       '/password_reset_confirmation_screen_two';
+  static const String homeScreen = '/home_screen';
   static const String networkDashboardScreen = '/network_dashboard_screen';
   static const String networkHealthScreen = '/network_health_screen';
   static const String networkHealthScreenInitialPage =
@@ -74,38 +76,37 @@ class AppRoutes {
   static const String initialRoute = '/';
 
   static Map<String, WidgetBuilder> get routes => {
-        onboardingScreen: OnboardingScreen.builder,
-        networkWelcomeScreen: NetworkWelcomeScreen.builder,
-        loginScreen: LoginScreen.builder,
-        forgotPasswordScreen: ForgotPasswordScreen.builder,
-        passwordResetConfirmationScreen:
-            PasswordResetConfirmationScreen.builder,
-        signUpScreen: SignUpScreen.builder,
-        passwordResetConfirmationScreenTwo:
-            PasswordResetConfirmationScreenTwo.builder,
-        networkDashboardScreen: NetworkDashboardScreen.builder,
-        networkHealthScreen: NetworkHealthScreen.builder,
-        addDeviceSetupScreen: AddDeviceSetupScreen.builder,
-        deviceConfigurationScreen: DeviceConfigurationScreen.builder,
-        deviceConfigurationSuccessScreen:
-            DeviceConfigurationSuccessScreen.builder,
-        familyWiFiManagementScreen: FamilyWiFiManagementScreen.builder,
-        addFamilyWiFiGroupScreen: AddFamilyWiFiGroupScreen.builder,
-        associateSchedulesScreen: AssociateSchedulesScreen.builder,
-        groupDetailScreen: GroupDetailScreen.builder,
-        addDevicesScreen: AddDevicesScreen.builder,
-        newScheduleCreationScreen: NewScheduleCreationScreen.builder,
-        groupSelectionScreen: GroupSelectionScreen.builder,
-        scheduleDetailScreen: ScheduleDetailScreen.builder,
-        speedTestProgressScreen: SpeedTestProgressScreen.builder,
-        speedTestHistoryScreen: SpeedTestHistoryScreen.builder,
-        speedTestResultsScreen: SpeedTestResultsScreen.builder,
-        deviceManagementScreen: DeviceManagementScreen.builder,
-        networkDevicesManagementScreen: NetworkDevicesManagementScreen.builder,
-        routerDetailScreen: RouterDetailScreen.builder,
-        editNetworkScreen: EditNetworkScreen.builder,
-        editGuestNetworkScreen: EditGuestNetworkScreen.builder,
-        appNavigationScreen: AppNavigationScreen.builder,
-        initialRoute: AppNavigationScreen.builder
-      };
+    onboardingScreen: OnboardingScreen.builder,
+    networkWelcomeScreen: NetworkWelcomeScreen.builder,
+    loginScreen: LoginScreen.builder,
+    forgotPasswordScreen: ForgotPasswordScreen.builder,
+    passwordResetConfirmationScreen: PasswordResetConfirmationScreen.builder,
+    signUpScreen: SignUpScreen.builder,
+    passwordResetConfirmationScreenTwo:
+        PasswordResetConfirmationScreenTwo.builder,
+    homeScreen: HomeScreen.builder,
+    networkDashboardScreen: NetworkDashboardScreen.builder,
+    networkHealthScreen: NetworkHealthScreen.builder,
+    addDeviceSetupScreen: AddDeviceSetupScreen.builder,
+    deviceConfigurationScreen: DeviceConfigurationScreen.builder,
+    deviceConfigurationSuccessScreen: DeviceConfigurationSuccessScreen.builder,
+    familyWiFiManagementScreen: FamilyWiFiManagementScreen.builder,
+    addFamilyWiFiGroupScreen: AddFamilyWiFiGroupScreen.builder,
+    associateSchedulesScreen: AssociateSchedulesScreen.builder,
+    groupDetailScreen: GroupDetailScreen.builder,
+    addDevicesScreen: AddDevicesScreen.builder,
+    newScheduleCreationScreen: NewScheduleCreationScreen.builder,
+    groupSelectionScreen: GroupSelectionScreen.builder,
+    scheduleDetailScreen: ScheduleDetailScreen.builder,
+    speedTestProgressScreen: SpeedTestProgressScreen.builder,
+    speedTestHistoryScreen: SpeedTestHistoryScreen.builder,
+    speedTestResultsScreen: SpeedTestResultsScreen.builder,
+    deviceManagementScreen: DeviceManagementScreen.builder,
+    networkDevicesManagementScreen: NetworkDevicesManagementScreen.builder,
+    routerDetailScreen: RouterDetailScreen.builder,
+    editNetworkScreen: EditNetworkScreen.builder,
+    editGuestNetworkScreen: EditGuestNetworkScreen.builder,
+    appNavigationScreen: AppNavigationScreen.builder,
+    initialRoute: AppNavigationScreen.builder,
+  };
 }

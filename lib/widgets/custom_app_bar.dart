@@ -13,6 +13,7 @@ import './custom_image_view.dart';
  * @param backgroundColor - Background color of the app bar
  * @param titleColor - Color of the title text
  * @param centerTitle - Whether to center the title text
+ * @param actions - Actions to display on right of app bar
  */
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   CustomAppBar({
@@ -24,6 +25,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.titleColor,
     this.centerTitle,
+    this.actions,
   }) : super(key: key);
 
   /// The main title text displayed in the app bar
@@ -47,6 +49,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Whether to center the title text
   final bool? centerTitle;
 
+  /// Whether to center the title text
+  final List<Widget>? actions;
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -57,6 +62,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: _buildLeading(context), // Modified: Added context parameter
       title: _buildTitle(),
       titleSpacing: hasLeading ?? true ? 12.h : 16.h,
+      actions: actions,
     );
   }
 
@@ -66,9 +72,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (!(hasLeading ?? true)) return null;
 
     return GestureDetector(
-      onTap: onLeadingPressed ??
-          () => Navigator.of(context)
-              .pop(), // Modified: Replaced Get.context! with context
+      onTap:
+          onLeadingPressed ??
+          () => Navigator.of(
+            context,
+          ).pop(), // Modified: Replaced Get.context! with context
       child: Container(
         padding: EdgeInsets.all(12.h),
         child: CustomImageView(
@@ -85,8 +93,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildTitle() {
     return Text(
       title,
-      style: TextStyleHelper.instance.title18BoldInter
-          .copyWith(color: titleColor ?? Color(0xFFFFFFFF)),
+      style: TextStyleHelper.instance.title18BoldInter.copyWith(
+        color: titleColor ?? Color(0xFFFFFFFF),
+      ),
     );
   }
 

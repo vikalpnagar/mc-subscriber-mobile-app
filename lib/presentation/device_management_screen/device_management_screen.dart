@@ -37,68 +37,57 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: appTheme.gray_900,
-      appBar: CustomAppBar(
-        title: 'Devices',
-        hasLeading: true,
-        leadingIcon: ImageConstant.imgDepth4Frame0WhiteA700,
-        onLeadingPressed: () => NavigatorService.goBack(),
-      ),
-      body: Consumer<DeviceManagementProvider>(
-        builder: (context, provider, child) {
-          return Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: appTheme.blue_gray_700,
-                      width: 1.h,
+    return Consumer<DeviceManagementProvider>(
+      builder: (context, provider, child) {
+        return Column(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: appTheme.blue_gray_700, width: 1.h),
+                ),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(
+                    child: Text(
+                      'Mobile devices',
+                      style: TextStyleHelper.instance.body14BoldInter,
                     ),
                   ),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  tabs: [
-                    Tab(
-                      child: Text(
-                        'Mobile devices',
-                        style: TextStyleHelper.instance.body14BoldInter,
-                      ),
+                  Tab(
+                    child: Text(
+                      'Router/mesh devices',
+                      style: TextStyleHelper.instance.body14BoldInter,
                     ),
-                    Tab(
-                      child: Text(
-                        'Router/mesh devices',
-                        style: TextStyleHelper.instance.body14BoldInter,
-                      ),
-                    ),
-                  ],
-                  labelColor: appTheme.white_A700,
-                  unselectedLabelColor: appTheme.indigo_200,
-                  indicator: BoxDecoration(),
-                  dividerColor: appTheme.transparentCustom,
-                  onTap: (index) {
-                    if (index == 1) {
-                      NavigatorService.pushNamed(
-                          AppRoutes.networkDevicesManagementScreen);
-                    }
-                  },
-                ),
+                  ),
+                ],
+                labelColor: appTheme.white_A700,
+                unselectedLabelColor: appTheme.indigo_200,
+                indicator: BoxDecoration(),
+                dividerColor: appTheme.transparentCustom,
+                onTap: (index) {
+                  if (index == 1) {
+                    NavigatorService.pushNamed(
+                      AppRoutes.networkDevicesManagementScreen,
+                    );
+                  }
+                },
               ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildMobileDevicesTab(provider),
-                    Container(), // Empty container for second tab
-                  ],
-                ),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildMobileDevicesTab(provider),
+                  Container(), // Empty container for second tab
+                ],
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -112,7 +101,8 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen>
             device: provider.mobileDevices[index],
             onIconTap: () {
               NavigatorService.pushNamed(
-                  AppRoutes.networkDevicesManagementScreen);
+                AppRoutes.networkDevicesManagementScreen,
+              );
             },
             onPauseTap: () {
               provider.toggleDevicePause(provider.mobileDevices[index]);

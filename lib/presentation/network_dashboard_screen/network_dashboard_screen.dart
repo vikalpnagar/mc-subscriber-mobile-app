@@ -41,56 +41,23 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: appTheme.gray_900,
-      body: Column(
-        children: [
-          _buildAppBarSection(),
-          _buildMainContent(),
-        ],
-      ),
-      bottomNavigationBar: _buildBottomBar(),
-    );
+    return _buildMainContent();
   }
 
-  Widget _buildAppBarSection() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 8.h),
-      color: appTheme.gray_900,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: CustomAppBar(
-              title: 'Home',
-              hasLeading: false,
-              centerTitle: true,
-              backgroundColor: appTheme.transparentCustom,
-              titleColor: appTheme.white_A700,
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(top: 8.h),
-            child: CustomImageView(
-              imagePath: ImageConstant.imgDepth3Frame1,
-              height: 48.h,
-              width: 48.h,
-            ),
-          ),
-        ],
+  Widget buildSettingAppBarAction() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: CustomImageView(
+        imagePath: ImageConstant.imgDepth3Frame1,
+        height: 48.h,
+        width: 48.h,
       ),
     );
   }
 
   Widget _buildMainContent() {
     return Expanded(
-      child: Column(
-        children: [
-          _buildTabSection(),
-          _buildTabContent(),
-        ],
-      ),
+      child: Column(children: [_buildTabSection(), _buildTabContent()]),
     );
   }
 
@@ -98,20 +65,14 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: appTheme.blue_gray_700,
-            width: 1.h,
-          ),
+          bottom: BorderSide(color: appTheme.blue_gray_700, width: 1.h),
         ),
       ),
       child: TabBar(
         controller: tabController,
         padding: EdgeInsets.symmetric(horizontal: 16.h),
         indicator: UnderlineTabIndicator(
-          borderSide: BorderSide(
-            color: appTheme.white_A700,
-            width: 2.h,
-          ),
+          borderSide: BorderSide(color: appTheme.white_A700, width: 2.h),
         ),
         indicatorSize: TabBarIndicatorSize.label,
         labelColor: appTheme.white_A700,

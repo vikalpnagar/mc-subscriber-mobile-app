@@ -70,7 +70,7 @@ class LoginProvider with BaseBloc {
 
       dismissLoading();
       if (result.isSuccess) {
-        NavigatorService.popAndPushNamed(AppRoutes.networkDashboardScreen);
+        NavigatorService.popAndPushNamed(AppRoutes.homeScreen);
       } else {
         showAlert(result.message, title: await 'login_failed'.tr());
       }
