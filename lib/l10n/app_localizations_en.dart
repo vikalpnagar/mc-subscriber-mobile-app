@@ -61,6 +61,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscribe_failed => 'Subscribe Failed';
 
   @override
+  String get topology_request_failed => 'Topology Request Failed';
+
+  @override
   String get edit_network_success => 'Network settings saved successfully';
 
   @override

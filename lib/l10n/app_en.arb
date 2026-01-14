@@ -15,6 +15,7 @@
   "no_mail_app_title": "Open Mail App",
   "no_mail_app_message": "No mail apps installed",
   "subscribe_failed": "Subscribe Failed",
+  "topology_request_failed": "Topology Request Failed",
   "edit_network_success": "Network settings saved successfully",
   "edit_network_failed": "SSID/Password Update Failed",
   "invalid_response": "Invalid data received from server."

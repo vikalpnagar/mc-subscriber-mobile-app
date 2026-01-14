@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     return RefreshIndicator(
       key: controller.refreshIndicatorKey,
-      onRefresh: () => controller.initialSubscribe(showPopupLoader: false),
+      onRefresh: () => controller.handlePullToRefresh(showPopupLoader: false),
       child: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
         child: SizedBox(

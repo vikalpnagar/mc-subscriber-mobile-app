@@ -190,6 +190,12 @@ abstract class AppLocalizations {
   /// **'Subscribe Failed'**
   String get subscribe_failed;
 
+  /// No description provided for @topology_request_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Topology Request Failed'**
+  String get topology_request_failed;
+
   /// No description provided for @edit_network_success.
   ///
   /// In en, this message translates to:

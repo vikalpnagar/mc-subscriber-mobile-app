@@ -207,7 +207,7 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
           AppRoutes.editNetworkScreen,
           arguments: {'macAddress': macAddress, 'networkName': networkName},
         );
-        homeController.triggerSwipeToRefresh();
+        homeController.triggerPullToRefresh();
       },
       child: Container(
         margin: EdgeInsets.only(top: 12.h),

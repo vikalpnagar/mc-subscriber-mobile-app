@@ -5,6 +5,7 @@ import 'package:family_wifi/core/utils/loading_state_provider.dart';
 import 'package:family_wifi/l10n/app_localization_extension.dart';
 import 'package:family_wifi/presentation/home_screen/bottom_bar_item.dart';
 import 'package:family_wifi/presentation/home_screen/models/subscriber_info.dart';
+import 'package:family_wifi/presentation/home_screen/models/topology_info.dart';
 import 'package:family_wifi/presentation/home_screen/repository/home_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,9 @@ class HomeProvider with BaseBloc {
 
   final ValueNotifier<SubscriberInfo?> subscriberInfo =
       ValueNotifier<SubscriberInfo?>(null);
+
+  final ValueNotifier<TopologyInfo?> topologyInfo =
+      ValueNotifier<TopologyInfo?>(null);
 
   HomeProvider(
     LoadingStateProvider loadingStateProvider,
@@ -48,11 +52,18 @@ class HomeProvider with BaseBloc {
   }
 
   void init() {
-    initialSubscribe();
+    handlePullToRefresh();
   }
 
-  void triggerSwipeToRefresh() {
+  void triggerPullToRefresh() {
     refreshIndicatorKey.currentState?.show();
+  }
+
+  Future<void> handlePullToRefresh({bool showPopupLoader = true}) async {
+    await initialSubscribe(showPopupLoader: showPopupLoader);
+    if (subscriberInfo.value != null) {
+      fetchTopologyInfo();
+    }
   }
 
   Future<void> initialSubscribe({bool showPopupLoader = true}) async {
@@ -66,6 +77,20 @@ class HomeProvider with BaseBloc {
         subscriberInfo.value = result.message;
       } else {
         showAlert(result.message, title: await 'subscribe_failed'.tr());
+      }
+    } catch (error) {
+      dismissLoading();
+    }
+  }
+
+  Future<void> fetchTopologyInfo() async {
+    try {
+      Result result = await _repository.topology();
+
+      if (result.isSuccess) {
+        topologyInfo.value = result.message;
+      } else {
+        showAlert(result.message, title: await 'topology_request_failed'.tr());
       }
     } catch (error) {
       dismissLoading();
