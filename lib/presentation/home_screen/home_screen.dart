@@ -8,6 +8,7 @@ import 'package:family_wifi/presentation/home_screen/bottom_bar_item.dart';
 import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
 import 'package:family_wifi/presentation/home_screen/repository/home_repository.dart';
 import 'package:family_wifi/presentation/network_dashboard_screen/network_dashboard_screen.dart';
+import 'package:family_wifi/presentation/setting_screen/setting_screen.dart';
 import 'package:family_wifi/widgets/custom_app_bar.dart';
 import 'package:family_wifi/widgets/custom_image_view.dart';
 import 'package:family_wifi/widgets/style_helper.dart';
@@ -142,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen>
       children: [
         NetworkDashboardScreen.builder(context),
         DeviceManagementScreen.builder(context),
-        Container(),
+        SettingScreen.builder(context),
       ],
     );
   }
