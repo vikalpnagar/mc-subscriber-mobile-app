@@ -57,9 +57,9 @@ class ApiHelper {
     }
     String hostName = _host;
     if (path == ApiConstants.login) {
-      hostName += _portAuth;
+      hostName += ':${_portAuth}';
     } else {
-      hostName += _portDefault;
+      hostName += ':${_portDefault}';
     }
     final Uri uri = Uri.https(hostName, '$_suffix$path', parameters);
     try {
