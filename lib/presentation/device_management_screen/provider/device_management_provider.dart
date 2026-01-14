@@ -1,4 +1,3 @@
-import 'package:family_wifi/core/utils/print_log_helper.dart';
 import 'package:family_wifi/core/utils/streamer.dart';
 import 'package:family_wifi/presentation/device_management_screen/models/router_device_info_model.dart';
 import 'package:family_wifi/presentation/home_screen/models/topology_info.dart';
@@ -14,13 +13,13 @@ class DeviceManagementProvider {
   Stream<List<MobileDeviceInfoModel>?> get mobileDevices =>
       _mobileDevices.stream;
   List<MobileDeviceInfoModel>? get mobileDevicesInitialData =>
-      _mobileDevices.value;
+      _mobileDevices.valueOrNull;
 
   Streamer<List<RouterDeviceInfoModel>> _routerDevices = new Streamer();
   Stream<List<RouterDeviceInfoModel>?> get routerDevices =>
       _routerDevices.stream;
   List<RouterDeviceInfoModel>? get routerDevicesInitialData =>
-      _routerDevices.value;
+      _routerDevices.valueOrNull;
 
   void initialize() {
     // Put any initializations here
@@ -86,6 +85,7 @@ class DeviceManagementProvider {
 
   void dispose() {
     _mobileDevices.close();
+    _routerDevices.close();
   }
 }
 

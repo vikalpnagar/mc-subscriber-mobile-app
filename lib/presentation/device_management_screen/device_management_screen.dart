@@ -1,14 +1,11 @@
-import 'package:family_wifi/core/utils/print_log_helper.dart';
-import 'package:family_wifi/presentation/device_management_screen/models/mobile_device_info_model.dart';
-import 'package:family_wifi/presentation/device_management_screen/models/router_device_info_model.dart';
-import 'package:family_wifi/presentation/device_management_screen/widgets/router_device_item_view.dart';
+import 'package:family_wifi/presentation/device_management_screen/widgets/mobile_devices_tab.dart';
+import 'package:family_wifi/presentation/device_management_screen/widgets/router_mesh_devices_tab.dart';
 import 'package:family_wifi/presentation/home_screen/models/topology_info.dart';
 import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/app_export.dart';
 import './provider/device_management_provider.dart';
-import 'widgets/mobile_device_item_view.dart';
 
 class DeviceManagementScreen extends StatefulWidget {
   const DeviceManagementScreen({Key? key}) : super(key: key);
@@ -40,7 +37,6 @@ class DeviceManagementScreen extends StatefulWidget {
 
 class _DeviceManagementScreenState extends State<DeviceManagementScreen>
     with TickerProviderStateMixin {
-  late final DeviceManagementProvider deviceMngmtController;
   late final HomeProvider homeController;
   late TabController _tabController;
 
@@ -48,18 +44,13 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    deviceMngmtController = Provider.of<DeviceManagementProvider>(
-      context,
-      listen: false,
-    );
-    // deviceMngmtController.initialize();
     homeController = Provider.of<HomeProvider>(context, listen: false);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    deviceMngmtController.dispose();
+    context.read<DeviceManagementProvider>().dispose();
     super.dispose();
   }
 
@@ -76,7 +67,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen>
         // A more general solution to allow the outer scroll view to trigger the refresh
         return notification.depth == 2;
       },
-      key: deviceMngmtController.refreshIndicatorKey,
+      key: context.read<DeviceManagementProvider>().refreshIndicatorKey,
       onRefresh: () => homeController.fetchTopologyInfo(),
       child: NestedScrollView(
         floatHeaderSlivers: true,
@@ -123,70 +114,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen>
   Widget _buildTabContent() {
     return TabBarView(
       controller: _tabController,
-      children: [_buildMobileDevicesTab(), _buildRouterMeshDevicesTab()],
-    );
-  }
-
-  Widget _buildMobileDevicesTab() {
-    return StreamProvider<List<MobileDeviceInfoModel>?>.value(
-      initialData: deviceMngmtController.mobileDevicesInitialData,
-      value: deviceMngmtController.mobileDevices,
-      child: Consumer<List<MobileDeviceInfoModel>?>(
-        builder:
-            (
-              BuildContext context,
-              List<MobileDeviceInfoModel>? value,
-              Widget? child,
-            ) {
-              if (value != null) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  itemBuilder: (context, index) {
-                    return MobileDeviceItemView(
-                      device: value[index],
-                      /*onIconTap: () {
-                        NavigatorService.pushNamed(
-                          AppRoutes.networkDevicesManagementScreen,
-                        );
-                      },*/
-                      onPauseTap: () {
-                        deviceMngmtController.toggleDevicePause(value[index]);
-                      },
-                    );
-                  },
-                );
-              }
-              return SizedBox.shrink();
-            },
-      ),
-    );
-  }
-
-  Widget _buildRouterMeshDevicesTab() {
-    return StreamProvider<List<RouterDeviceInfoModel>?>.value(
-      initialData: deviceMngmtController.routerDevicesInitialData,
-      value: deviceMngmtController.routerDevices,
-      child: Consumer<List<RouterDeviceInfoModel>?>(
-        builder:
-            (
-              BuildContext context,
-              List<RouterDeviceInfoModel>? value,
-              Widget? child,
-            ) {
-              if (value != null) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  itemBuilder: (context, index) {
-                    return RouterDeviceItemView(
-                      deviceItem: value[index],
-                      onButtonTap: () {},
-                    );
-                  },
-                );
-              }
-              return SizedBox.shrink();
-            },
-      ),
+      children: [MobileDevicesTab(), RouterMeshDevicesTab()],
     );
   }
 }
