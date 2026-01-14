@@ -153,6 +153,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid signup response received from server.'**
   String get invalid_signup_result;
+
+  /// No description provided for @signup_successful_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Signup Successful'**
+  String get signup_successful_title;
+
+  /// No description provided for @signup_successful_msg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is successfully created. Please check your email to setup password for your account.'**
+  String get signup_successful_msg;
 }
 
 class _AppLocalizationsDelegate

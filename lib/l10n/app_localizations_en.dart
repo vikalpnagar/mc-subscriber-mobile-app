@@ -39,4 +39,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get invalid_signup_result =>
       'Invalid signup response received from server.';
+
+  @override
+  String get signup_successful_title => 'Signup Successful';
+
+  @override
+  String get signup_successful_msg =>
+      'Your account is successfully created. Please check your email to setup password for your account.';
 }

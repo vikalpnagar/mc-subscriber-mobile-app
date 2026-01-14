@@ -91,7 +91,13 @@ class SignUpProvider with BaseBloc {
 
       dismissLoading();
       if (result.isSuccess) {
-        NavigatorService.popAndPushNamed(AppRoutes.loginScreen);
+        showAlert(
+          await 'signup_successful_msg'.tr(),
+          title: await 'signup_successful_title'.tr(),
+          yesHandler: () {
+            NavigatorService.popAndPushNamed(AppRoutes.loginScreen);
+          },
+        );
       } else {
         showAlert(result.message, title: await 'signup_failed'.tr());
       }
