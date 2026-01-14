@@ -5,6 +5,7 @@ import 'package:family_wifi/core/network/api_exception.dart';
 import 'package:family_wifi/core/network/api_helper.dart';
 import 'package:family_wifi/core/network/result.dart';
 import 'package:family_wifi/core/utils/print_log_helper.dart';
+import 'package:family_wifi/l10n/app_localization_extension.dart';
 import 'package:family_wifi/presentation/sign_up_screen/models/sign_up_model.dart';
 import 'package:family_wifi/presentation/sign_up_screen/models/sign_up_result.dart';
 
@@ -32,7 +33,7 @@ class SignUpRepository {
         SignUpResult signUpResult = SignUpResult.fromJson(result);
         return Result.success(signUpResult);
       } else {
-        return Result.error('invalid_signup_result');
+        return Result.error(await 'invalid_signup_result'.tr());
       }
     } catch (error, stack) {
       logPrint('$error, \n$stack');
@@ -42,14 +43,18 @@ class SignUpRepository {
 
   Future<Result> handleApiException(dynamic exception) async {
     if (exception is ApiException) {
-      return Result.error(exception.message);
+      return Result.error(
+        exception.translate ? await exception.message.tr() : exception.message,
+      );
     } else if (exception is TimeoutException) {
       bool available = await ApiHelper.check(checkActiveInternet: true);
       return Result.error(
-        available ? 'unable_to_reach_server' : 'out_of_coverage',
+        available
+            ? await 'unable_to_reach_server'.tr()
+            : await 'out_of_coverage'.tr(),
       );
     } else {
-      return Result.error('something_went_wrong');
+      return Result.error(await 'something_went_wrong'.tr());
     }
   }
 }

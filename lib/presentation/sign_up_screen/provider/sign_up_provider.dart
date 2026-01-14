@@ -3,6 +3,7 @@ import 'package:family_wifi/core/utils/alert_state_provider.dart';
 import 'package:family_wifi/core/utils/base_bloc.dart';
 import 'package:family_wifi/core/utils/loading_state_provider.dart';
 import 'package:family_wifi/core/utils/navigator_service.dart';
+import 'package:family_wifi/l10n/app_localization_extension.dart';
 import 'package:family_wifi/presentation/sign_up_screen/models/sign_up_model.dart';
 import 'package:family_wifi/presentation/sign_up_screen/repository/sign_up_repository.dart';
 import 'package:family_wifi/routes/app_routes.dart';
@@ -88,20 +89,11 @@ class SignUpProvider with BaseBloc {
 
       Result result = await _repository.createAccount(signUpModel);
 
-      // await Future.delayed(Duration(seconds: 2));
-
-      // emailController.clear();
-      // operatorIdController.clear();
-      // macAddressController.clear();
-
-      // Navigate to next screen (assuming password reset confirmation)
-      // NavigatorService.pushNamed(AppRoutes.passwordResetConfirmationScreen);
-
       dismissLoading();
       if (result.isSuccess) {
         NavigatorService.popAndPushNamed(AppRoutes.loginScreen);
       } else {
-        showAlert('alert', result.message);
+        showAlert(result.message, title: await 'signup_failed'.tr());
       }
     } catch (error) {
       dismissLoading();

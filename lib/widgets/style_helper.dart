@@ -4,7 +4,6 @@ import 'package:family_wifi/theme/text_style_helper.dart';
 import 'package:family_wifi/theme/theme_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class StyleHelper {
   static bool get isIOS => Platform.isIOS;
@@ -195,7 +194,11 @@ class StyleHelper {
                 canPop: dismissOnTouchOutside,
                 child: CupertinoAlertDialog(
                   title: title != null
-                      ? Text(title, textAlign: TextAlign.center)
+                      ? Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: tsh.title18BoldInter,
+                        )
                       : null,
                   content: SingleChildScrollView(
                     child: Text(
@@ -256,7 +259,13 @@ class StyleHelper {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(8.0)),
       ),
-      title: title != null ? Text(title, textAlign: TextAlign.center) : null,
+      title: title != null
+          ? Text(
+              title,
+              style: tsh.title18BoldInter,
+              textAlign: TextAlign.center,
+            )
+          : null,
       content: SingleChildScrollView(
         child: Text(msg, style: tsh.title16RegularInter.copyWith(height: 1.2)),
       ),
@@ -339,15 +348,25 @@ class StyleHelper {
         child: CupertinoDialogAction(
           child: Text(
             title,
-            style: TextStyleHelper.instance.body14BoldInter.copyWith(
+            style: TextStyleHelper.instance.title16RegularInter.copyWith(
               color: appTheme.blue_700,
+              fontWeight: FontWeight.w500,
             ),
           ),
           onPressed: onPressed,
         ),
       );
     }
-    return TextButton(child: Text(title), onPressed: onPressed);
+    return TextButton(
+      child: Text(
+        title,
+        style: TextStyleHelper.instance.body14RegularInter.copyWith(
+          color: appTheme.blue_700,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onPressed: onPressed,
+    );
   }
 
   /* static PreferredSizeWidget buildAppBar(

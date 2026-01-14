@@ -21,19 +21,19 @@ class AlertStateProvider extends ChangeNotifier {
 
   String get alertMsg => this.message ?? 'NO MESSAGE';
 
-  String get yesMsg => this.yesAction ?? 'Ok';
+  String get yesMsg => this.yesAction ?? 'OK';
 
   showAlert(
-    String title,
     String message, {
+    String? title,
     String? yesAction,
     String? noAction,
     Function? yesHandler,
     Function? noHandler,
   }) {
     this.display = true;
-    this.title = title;
     this.message = message;
+    this.title = title;
     this.yesAction = yesAction;
     this.noAction = noAction;
     this.yesHandler = yesHandler;
@@ -43,8 +43,8 @@ class AlertStateProvider extends ChangeNotifier {
 
   dismissAlert() {
     this.display = false;
-    this.title = null;
     this.message = null;
+    this.title = null;
     this.yesAction = null;
     this.noAction = null;
     this.yesHandler = null;

@@ -27,15 +27,22 @@ mixin BaseBloc {
   bool get isLoading => loadingStateProvider.loading;
 
   void showAlert(
-    String title,
     String message, {
+    String? title,
     String? yesAction,
     String? noAction,
     Function? yesHandler,
     Function? noHandler,
   }) {
     logPrint('baseBloc: showAlert');
-    alertStateProvider.showAlert(title, message);
+    alertStateProvider.showAlert(
+      message,
+      title: title,
+      yesAction: yesAction,
+      noAction: noAction,
+      yesHandler: yesHandler,
+      noHandler: noHandler,
+    );
   }
 
   void dismissAlert() {
