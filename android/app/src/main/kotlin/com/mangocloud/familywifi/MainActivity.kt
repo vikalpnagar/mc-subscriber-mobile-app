@@ -1,4 +1,4 @@
-package com.iotina.familywifi
+package com.mangocloud.familywifi
 
 import io.flutter.embedding.android.FlutterActivity
 
