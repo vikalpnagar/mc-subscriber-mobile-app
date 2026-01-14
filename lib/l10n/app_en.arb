@@ -1,0 +1,12 @@
+{
+  "appTitle": "Family WiFi",
+  "alert": "Alert",
+  "success": "Success",
+  "failed": "Failed",
+  "signup_failed": "Sign up Failed",
+  "login_failed": "Login Failed",
+  "unable_to_reach_server": "Unable to reach server at the moment.",
+  "out_of_coverage": "Please check your internet connection.",
+  "something_went_wrong": "Something went wrong. Pls try again later.",
+  "invalid_signup_result": "Invalid signup response received from server."
+}

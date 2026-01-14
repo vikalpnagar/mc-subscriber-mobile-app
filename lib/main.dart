@@ -2,7 +2,7 @@ import 'package:family_wifi/core/network/api_helper.dart';
 import 'package:family_wifi/core/utils/alert_state_provider.dart';
 import 'package:family_wifi/core/utils/loading_state_provider.dart';
 import 'package:family_wifi/core/utils/shared_preferences_helper.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:family_wifi/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -44,11 +44,12 @@ class MyApp extends StatelessWidget {
             // 🚨 END CRITICAL SECTION
             navigatorKey: NavigatorService.navigatorKey,
             localizationsDelegates: [
+              AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: [Locale('en', '')],
+            supportedLocales: [Locale('en')],
             initialRoute: AppRoutes.onboardingScreen,
             routes: AppRoutes.routes,
           );
