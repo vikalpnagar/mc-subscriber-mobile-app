@@ -1,4 +1,9 @@
+import 'package:family_wifi/core/utils/alert_state_provider.dart';
+import 'package:family_wifi/core/utils/loading_state_provider.dart';
+import 'package:family_wifi/main.dart';
+import 'package:family_wifi/widgets/style_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:open_mail_app_plus/open_mail_app_plus.dart';
 
 import '../../core/app_export.dart';
 import '../../widgets/custom_app_bar.dart';
@@ -9,9 +14,22 @@ class PasswordResetConfirmationScreenTwo extends StatefulWidget {
   const PasswordResetConfirmationScreenTwo({Key? key}) : super(key: key);
 
   static Widget builder(BuildContext context) {
-    return ChangeNotifierProvider<PasswordResetConfirmationScreenTwoProvider>(
-      create: (context) => PasswordResetConfirmationScreenTwoProvider(),
-      child: const PasswordResetConfirmationScreenTwo(),
+    return MyApp.buildLoadingAlertProviders(
+      child:
+          ProxyProvider2<
+            LoadingStateProvider,
+            AlertStateProvider,
+            PasswordResetConfirmationScreenTwoProvider
+          >(
+            update: (_, loadingState, alertState, pwdResetProvider) {
+              return pwdResetProvider ??
+                  PasswordResetConfirmationScreenTwoProvider(
+                    loadingState,
+                    alertState,
+                  );
+            },
+            child: const PasswordResetConfirmationScreenTwo(),
+          ),
     );
   }
 
@@ -22,32 +40,61 @@ class PasswordResetConfirmationScreenTwo extends StatefulWidget {
 
 class _PasswordResetConfirmationScreenTwoState
     extends State<PasswordResetConfirmationScreenTwo> {
+  late final PasswordResetConfirmationScreenTwoProvider controller;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PasswordResetConfirmationScreenTwoProvider>(context,
-              listen: false)
-          .initialize();
-    });
+    controller = Provider.of<PasswordResetConfirmationScreenTwoProvider>(
+      context,
+      listen: false,
+    );
+    controller.loadingStateProvider.addListener(handleLoadingState);
+    controller.alertStateProvider.addListener(handleAlertState);
+  }
+
+  handleLoadingState() {
+    if (controller.isLoading) {
+      final state = controller.loadingStateProvider;
+      StyleHelper.showProgressDialog(context, state.title, state.message);
+    } else {
+      NavigatorService.goBack();
+    }
+  }
+
+  handleAlertState() {
+    if (controller.isAlertDisplaying) {
+      final state = controller.alertStateProvider;
+      StyleHelper.showAlertDialog(
+        context,
+        state.alertMsg,
+        state.yesMsg,
+        title: state.title,
+        yesHandler: state.yesHandler,
+        noLabel: state.noAction,
+        noHandler: state.noHandler,
+      );
+    } else {
+      NavigatorService.goBack();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: appTheme.gray_900,
-      appBar: _buildAppBar(context),
-      body: Consumer<PasswordResetConfirmationScreenTwoProvider>(
-        builder: (context, provider, child) {
-          return Column(
-            children: [
-              Expanded(
-                child: _buildMainContent(context),
-              ),
-              _buildBottomSection(context, provider),
-            ],
-          );
-        },
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: appTheme.gray_900,
+        appBar: _buildAppBar(context),
+        body: Consumer<PasswordResetConfirmationScreenTwoProvider>(
+          builder: (context, provider, child) {
+            return Column(
+              children: [
+                Expanded(child: _buildMainContent(context)),
+                _buildBottomSection(context, provider),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -72,14 +119,17 @@ class _PasswordResetConfirmationScreenTwoState
           SizedBox(height: 20.h),
           Text(
             'Check your email',
-            style: TextStyleHelper.instance.title22BoldInter
-                .copyWith(height: 1.23),
+            style: TextStyleHelper.instance.title22BoldInter.copyWith(
+              height: 1.23,
+            ),
           ),
           SizedBox(height: 19.h),
           Text(
             'We\'ve sent a link to your email address. Please check your inbox to set your password. After setting your password, return to the app and use the login button to access your account.',
-            style: TextStyleHelper.instance.title16RegularInter
-                .copyWith(color: appTheme.white_A700, height: 1.5),
+            style: TextStyleHelper.instance.title16RegularInter.copyWith(
+              color: appTheme.white_A700,
+              height: 1.5,
+            ),
           ),
           Spacer(),
         ],
@@ -87,15 +137,17 @@ class _PasswordResetConfirmationScreenTwoState
     );
   }
 
-  Widget _buildBottomSection(BuildContext context,
-      PasswordResetConfirmationScreenTwoProvider provider) {
+  Widget _buildBottomSection(
+    BuildContext context,
+    PasswordResetConfirmationScreenTwoProvider provider,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.h),
       child: Column(
         children: [
           CustomButton(
             text: 'Open email app',
-            onPressed: provider.onOpenEmailApp,
+            onPressed: onOpenEmailAppSelected,
             backgroundColor: appTheme.blue_700,
             textColor: appTheme.white_A700,
             fontSize: 16.fSize,
@@ -106,5 +158,18 @@ class _PasswordResetConfirmationScreenTwoState
         ],
       ),
     );
+  }
+
+  onOpenEmailAppSelected() async {
+    List<MailApp>? openMailAppList = await controller.onOpenEmailApp();
+    if (openMailAppList?.isNotEmpty ?? false) {
+      await showDialog(
+        context: context,
+        builder: (_) {
+          return MailAppPickerDialog(mailApps: openMailAppList!);
+        },
+      );
+      NavigatorService.popAndPushNamed(AppRoutes.loginScreen);
+    }
   }
 }
