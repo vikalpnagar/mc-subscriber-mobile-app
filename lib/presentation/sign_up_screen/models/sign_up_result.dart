@@ -1,10 +1,14 @@
+import 'package:json_annotation/json_annotation.dart';
+part 'sign_up_result.g.dart';
+
+@JsonSerializable()
 class SignUpResult {
-  final String id;
-  final String macAddress;
-  final String deviceID;
-  final String userId;
-  final String registrationId;
-  final String status;
+  final String? id;
+  final String? macAddress;
+  final String? deviceID;
+  final String? userId;
+  final String? registrationId;
+  final String? status;
 
   SignUpResult({
     required this.id,
@@ -15,14 +19,7 @@ class SignUpResult {
     required this.status,
   });
 
-  factory SignUpResult.fromJson(Map<String, dynamic> json) {
-    return SignUpResult(
-      id: json['id'],
-      macAddress: json['macAddress'],
-      deviceID: json['deviceID'],
-      userId: json['userId'],
-      registrationId: json['registrationId'],
-      status: json['status'],
-    );
-  }
+  factory SignUpResult.fromJson(Map<String, dynamic> json) =>
+      _$SignUpResultFromJson(json);
+  Map<String, dynamic> toJson() => _$SignUpResultToJson(this);
 }

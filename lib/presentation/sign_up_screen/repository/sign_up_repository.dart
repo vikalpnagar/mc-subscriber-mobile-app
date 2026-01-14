@@ -27,10 +27,8 @@ class SignUpRepository {
           'registrationId': signUpModel.operatorId,
         },
       );
-      if (result.isNotEmpty &&
-          result.containsKey('userId') &&
-          ((result['userId'] as String?)?.isNotEmpty ?? false)) {
-        SignUpResult signUpResult = SignUpResult.fromJson(result);
+      SignUpResult signUpResult = SignUpResult.fromJson(result);
+      if (signUpResult.userId != null) {
         return Result.success(signUpResult);
       } else {
         return Result.error(await 'invalid_signup_result'.tr());
