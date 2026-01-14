@@ -4,6 +4,7 @@ part 'topology_info.g.dart';
 @JsonSerializable()
 class TopologyInfo {
   String? boardId;
+  Edges? edges;
   List<Node>? nodes;
   DateTime? timestamp;
 
@@ -12,6 +13,30 @@ class TopologyInfo {
   factory TopologyInfo.fromJson(Map<String, dynamic> json) =>
       _$TopologyInfoFromJson(json);
   Map<String, dynamic> toJson() => _$TopologyInfoToJson(this);
+}
+
+@JsonSerializable()
+class Edges {
+  List<Mesh>? mesh;
+
+  Edges({this.mesh});
+
+  factory Edges.fromJson(Map<String, dynamic> json) => _$EdgesFromJson(json);
+  Map<String, dynamic> toJson() => _$EdgesToJson(this);
+}
+
+@JsonSerializable()
+class Mesh {
+  String? band;
+  int? channel;
+  String? from;
+  String? to;
+  String? ssid;
+
+  Mesh({this.band, this.channel, this.from, this.to, this.ssid});
+
+  factory Mesh.fromJson(Map<String, dynamic> json) => _$MeshFromJson(json);
+  Map<String, dynamic> toJson() => _$MeshToJson(this);
 }
 
 @JsonSerializable()

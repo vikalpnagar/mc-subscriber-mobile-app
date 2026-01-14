@@ -36,6 +36,7 @@ class HomeRepository {
         ApiConstants.topology,
         requestType: RequestType.GET,
         parameters: {'boardId': '5591dbe0-f836-4a92-83a2-d5c0b75b10a'},
+        // parameters: {'boardId': '28bd72da-8ae7-45ed-9af3-b56d386311e'},
       );
       TopologyInfo topologyInfo = TopologyInfo.fromJson(result);
       return Result.success(topologyInfo);
@@ -47,9 +48,13 @@ class HomeRepository {
 
   Future<Result> handleApiException(dynamic exception) async {
     if (exception is ApiException) {
-      return Result.error(
-        exception.translate ? await exception.message.tr() : exception.message,
-      );
+      String errorMsg = exception.translate
+          ? await exception.message.tr()
+          : exception.message;
+      if (isUnauthorized(exception.data)) {
+        return Result.error(errorMsg, sessionExpired: true);
+      }
+      return Result.error(errorMsg);
     } else if (exception is TimeoutException) {
       bool available = await ApiHelper.check(checkActiveInternet: true);
       return Result.error(

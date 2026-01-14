@@ -6,22 +6,53 @@ part of 'topology_info.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-TopologyInfo _$TopologyInfoFromJson(Map<String, dynamic> json) => TopologyInfo(
-  boardId: json['boardId'] as String?,
-  nodes: (json['nodes'] as List<dynamic>?)
-      ?.map((e) => Node.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  timestamp: json['timestamp'] == null
-      ? null
-      : DateTime.parse(json['timestamp'] as String),
-);
+TopologyInfo _$TopologyInfoFromJson(Map<String, dynamic> json) =>
+    TopologyInfo(
+        boardId: json['boardId'] as String?,
+        nodes: (json['nodes'] as List<dynamic>?)
+            ?.map((e) => Node.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        timestamp: json['timestamp'] == null
+            ? null
+            : DateTime.parse(json['timestamp'] as String),
+      )
+      ..edges = json['edges'] == null
+          ? null
+          : Edges.fromJson(json['edges'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$TopologyInfoToJson(TopologyInfo instance) =>
     <String, dynamic>{
       'boardId': instance.boardId,
+      'edges': instance.edges,
       'nodes': instance.nodes,
       'timestamp': instance.timestamp?.toIso8601String(),
     };
+
+Edges _$EdgesFromJson(Map<String, dynamic> json) => Edges(
+  mesh: (json['mesh'] as List<dynamic>?)
+      ?.map((e) => Mesh.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$EdgesToJson(Edges instance) => <String, dynamic>{
+  'mesh': instance.mesh,
+};
+
+Mesh _$MeshFromJson(Map<String, dynamic> json) => Mesh(
+  band: json['band'] as String?,
+  channel: (json['channel'] as num?)?.toInt(),
+  from: json['from'] as String?,
+  to: json['to'] as String?,
+  ssid: json['ssid'] as String?,
+);
+
+Map<String, dynamic> _$MeshToJson(Mesh instance) => <String, dynamic>{
+  'band': instance.band,
+  'channel': instance.channel,
+  'from': instance.from,
+  'to': instance.to,
+  'ssid': instance.ssid,
+};
 
 Node _$NodeFromJson(Map<String, dynamic> json) => Node(
   aps: (json['aps'] as List<dynamic>?)

@@ -45,6 +45,8 @@ dependencies:
   json_annotation: ^4.9.0
   flutter_secure_storage: ^9.2.4
   open_mail_app_plus: ^0.0.2
+  graphview: ^1.5.1
+  el_tooltip: ^2.2.1
 dev_dependencies: 
   flutter_test:    # 🚨 CRITICAL: Required for Flutter project testing - DO NOT REMOVE
     sdk: flutter    # 🚨 CRITICAL: Required for Flutter project testing - DO NOT REMOVE

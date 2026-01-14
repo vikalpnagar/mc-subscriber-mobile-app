@@ -1,12 +1,17 @@
+import 'dart:convert';
+
 import 'package:family_wifi/core/network/result.dart';
 import 'package:family_wifi/core/utils/alert_state_provider.dart';
 import 'package:family_wifi/core/utils/base_bloc.dart';
 import 'package:family_wifi/core/utils/loading_state_provider.dart';
+import 'package:family_wifi/core/utils/navigator_service.dart';
+import 'package:family_wifi/core/utils/print_log_helper.dart';
 import 'package:family_wifi/l10n/app_localization_extension.dart';
 import 'package:family_wifi/presentation/home_screen/bottom_bar_item.dart';
 import 'package:family_wifi/presentation/home_screen/models/subscriber_info.dart';
 import 'package:family_wifi/presentation/home_screen/models/topology_info.dart';
 import 'package:family_wifi/presentation/home_screen/repository/home_repository.dart';
+import 'package:family_wifi/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 
 class HomeProvider with BaseBloc {
@@ -75,6 +80,8 @@ class HomeProvider with BaseBloc {
       if (showPopupLoader) dismissLoading();
       if (result.isSuccess) {
         subscriberInfo.value = result.message;
+      } else if (result.sessionExpired) {
+        NavigatorService.pushNamedAndRemoveUntil(AppRoutes.loginScreen);
       } else {
         showAlert(result.message, title: await 'subscribe_failed'.tr());
       }
@@ -89,6 +96,8 @@ class HomeProvider with BaseBloc {
 
       if (result.isSuccess) {
         topologyInfo.value = result.message;
+      } else if (result.sessionExpired) {
+        NavigatorService.pushNamedAndRemoveUntil(AppRoutes.loginScreen);
       } else {
         showAlert(result.message, title: await 'topology_request_failed'.tr());
       }

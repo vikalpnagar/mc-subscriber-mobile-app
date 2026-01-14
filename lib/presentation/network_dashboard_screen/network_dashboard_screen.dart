@@ -1,8 +1,14 @@
+import 'package:el_tooltip/el_tooltip.dart';
+import 'package:family_wifi/core/utils/print_log_helper.dart';
 import 'package:family_wifi/presentation/home_screen/models/subscriber_info.dart';
+import 'package:family_wifi/presentation/home_screen/models/topology_info.dart'
+    hide Node;
 import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
 import 'package:family_wifi/presentation/network_health_screen/network_health_screen_initial_page.dart';
 import 'package:family_wifi/presentation/network_health_screen/provider/network_health_provider.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:graphview/GraphView.dart';
 
 import '../../core/app_export.dart';
 import '../../widgets/custom_button.dart';
@@ -14,9 +20,22 @@ class NetworkDashboardScreen extends StatefulWidget {
   const NetworkDashboardScreen({Key? key}) : super(key: key);
 
   static Widget builder(BuildContext context) {
-    return ChangeNotifierProvider<NetworkDashboardProvider>(
-      create: (context) => NetworkDashboardProvider(),
-      child: const NetworkDashboardScreen(),
+    final homeController = Provider.of<HomeProvider>(context, listen: false);
+    return ValueListenableProvider<TopologyInfo?>.value(
+      value: homeController.topologyInfo,
+      child: ProxyProvider<TopologyInfo?, NetworkDashboardProvider>(
+        update:
+            (
+              BuildContext context,
+              TopologyInfo? topologyInfo,
+              NetworkDashboardProvider? previous,
+            ) {
+              final netProvider = previous ?? NetworkDashboardProvider();
+              netProvider.handleTopologyInfo(topologyInfo);
+              return netProvider;
+            },
+        child: const NetworkDashboardScreen(),
+      ),
     );
   }
 
@@ -26,6 +45,7 @@ class NetworkDashboardScreen extends StatefulWidget {
 
 class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
     with TickerProviderStateMixin {
+  late final NetworkDashboardProvider dashboardController;
   late final HomeProvider homeController;
   late TabController tabController;
 
@@ -34,7 +54,11 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
     super.initState();
     tabController = TabController(length: 2, vsync: this);
     context.read<NetworkDashboardProvider>().initialize();
-
+    dashboardController = Provider.of<NetworkDashboardProvider>(
+      context,
+      listen: false,
+    );
+    dashboardController.initialize();
     homeController = Provider.of<HomeProvider>(context, listen: false);
   }
 
@@ -61,7 +85,24 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
   }
 
   Widget _buildMainContent() {
-    return Column(children: [_buildTabSection(), _buildTabContent()]);
+    return RefreshIndicator(
+      // Customize which scroll notifications the RefreshIndicator listens to.
+      notificationPredicate: (notification) {
+        // return notification.depth == 2; // Common solution for TabBarView
+        // A more general solution to allow the outer scroll view to trigger the refresh
+        return notification.depth == 2;
+      },
+      key: homeController.refreshIndicatorKey,
+      onRefresh: () =>
+          homeController.handlePullToRefresh(showPopupLoader: false),
+      child: NestedScrollView(
+        floatHeaderSlivers: true,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return [SliverToBoxAdapter(child: _buildTabSection())];
+        },
+        body: _buildTabContent(),
+      ),
+    );
   }
 
   Widget _buildTabSection() {
@@ -96,17 +137,15 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
   Widget _buildTabContent() {
     return ValueListenableProvider.value(
       value: homeController.subscriberInfo,
-      child: Expanded(
-        child: TabBarView(
-          controller: tabController,
-          children: [
-            _buildOverviewTab(),
-            ChangeNotifierProvider(
-              create: (context) => NetworkHealthProvider(),
-              child: NetworkHealthScreenInitialPage(),
-            ),
-          ],
-        ),
+      child: TabBarView(
+        controller: tabController,
+        children: [
+          _buildOverviewTab(),
+          ChangeNotifierProvider(
+            create: (context) => NetworkHealthProvider(),
+            child: NetworkHealthScreenInitialPage(),
+          ),
+        ],
       ),
     );
   }
@@ -126,6 +165,11 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
               ),
             ),
             _buildNetworkTopologySection(),
+            SizedBox(height: 12.h),
+            Align(
+              alignment: Alignment.centerRight,
+              child: _buildAddMeshDeviceButton(),
+            ),
             _buildNetworkSections(),
           ],
         ),
@@ -134,69 +178,114 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
   }
 
   Widget _buildNetworkTopologySection() {
-    return Container(
-      margin: EdgeInsets.only(top: 12.h),
-      padding: EdgeInsets.all(16.h),
-      color: appTheme.gray_900,
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.h),
-            child: CustomImageView(
-              imagePath: ImageConstant.imgDepth4Frame0,
-              width: double.infinity,
-              height: 238.h,
-              fit: BoxFit.cover,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Align(
-            alignment: Alignment.centerRight,
-            child: CustomButton(
-              text: 'Add another mesh device',
-              onPressed: () {
-                NavigatorService.pushNamed(AppRoutes.addDeviceSetupScreen);
-              },
-              backgroundColor: appTheme.blue_gray_900,
-              textColor: appTheme.white_A700,
-              fontSize: 14.fSize,
-              fontWeight: FontWeight.w700,
-              padding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 10.h),
-            ),
-          ),
-        ],
+    return ValueListenableProvider<bool>.value(
+      value: dashboardController.displayGraph,
+      child: Consumer<bool>(
+        builder: (BuildContext context, bool value, Widget? child) {
+          return Container(
+            width: double.infinity,
+            height: 250,
+            margin: EdgeInsets.only(top: 12),
+            padding: EdgeInsets.all(12.0),
+            color: appTheme.blue_gray_900,
+            child: value
+                ? GraphView.builder(
+                    graph: dashboardController.graph,
+                    algorithm: CircleLayoutAlgorithm(
+                      CircleLayoutConfiguration(
+                        radius: 200.0,
+                        reduceEdgeCrossing: true,
+                      ),
+                      null,
+                    ),
+                    autoZoomToFit: true, // Automatically zoom to fit all nodes
+                    // initialNode: ValueKey('startNode'), // Jump to specific node on init
+                    // panAnimationDuration: Duration(milliseconds: 600),
+                    // toggleAnimationDuration: Duration(milliseconds: 400),
+                    centerGraph: true, // Center the graph in viewport
+                    builder: (Node node) {
+                      return buildNode(node);
+                    },
+                  )
+                : SizedBox.shrink(),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildNetworkSections() {
-    return Consumer<NetworkDashboardProvider>(
-      builder: (context, provider, child) {
-        return Consumer<SubscriberInfo?>(
-          builder:
-              (
-                BuildContext context,
-                SubscriberInfo? subscriberInfo,
-                Widget? child,
-              ) {
-                return Column(
-                  children: [
-                    _buildPrivateNetworkSection(
-                      subscriberInfo?.privateWiFiMacAddress,
-                      subscriberInfo?.privateWiFiSSID,
-                    ),
-                    _buildGuestNetworkSection(),
-                    child!,
-                  ],
-                );
-              },
-          child: Column(
-            children: provider.networkItems
-                .map((item) => NetworkItemWidget(networkItem: item))
-                .toList(),
-          ),
-        );
+  Widget buildNode(Node node) {
+    GraphNodeInfo nodeInfo = node.key!.value as GraphNodeInfo;
+    return ElTooltip(
+      showChildAboveOverlay: false,
+      distance: 2.0,
+      radius: Radius.circular(4),
+      padding: EdgeInsetsGeometry.all(8),
+      content: Text(
+        nodeInfo.label,
+        style: TextStyleHelper.instance.body12MediumInter,
+      ),
+      child: Container(
+        // width: 52.0,
+        // height: 52.0,
+        padding: EdgeInsets.all(16),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+          border: Border.all(color: nodeInfo.color!),
+        ),
+        child: nodeInfo.icon != null
+            ? Icon(nodeInfo.icon, color: nodeInfo.color, size: 24.0)
+            : Text(
+                nodeInfo.label,
+                style: TextStyleHelper.instance.title18BoldInter.copyWith(
+                  color: nodeInfo.color,
+                ),
+                textAlign: TextAlign.center,
+              ),
+      ),
+    );
+  }
+
+  Widget _buildAddMeshDeviceButton() {
+    return CustomButton(
+      text: 'Add another mesh device',
+      onPressed: () {
+        NavigatorService.pushNamed(AppRoutes.addDeviceSetupScreen);
       },
+      backgroundColor: appTheme.blue_gray_900,
+      textColor: appTheme.white_A700,
+      fontSize: 14.fSize,
+      fontWeight: FontWeight.w700,
+      padding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 10.h),
+    );
+  }
+
+  Widget _buildNetworkSections() {
+    return Consumer<SubscriberInfo?>(
+      builder:
+          (
+            BuildContext context,
+            SubscriberInfo? subscriberInfo,
+            Widget? child,
+          ) {
+            return Column(
+              children: [
+                _buildPrivateNetworkSection(
+                  subscriberInfo?.privateWiFiMacAddress,
+                  subscriberInfo?.privateWiFiSSID,
+                ),
+                _buildGuestNetworkSection(),
+                child!,
+              ],
+            );
+          },
+      child: Column(
+        children: dashboardController.networkItems
+            .map((item) => NetworkItemWidget(networkItem: item))
+            .toList(),
+      ),
     );
   }
 
