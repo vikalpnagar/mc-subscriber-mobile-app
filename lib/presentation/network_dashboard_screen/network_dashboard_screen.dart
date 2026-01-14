@@ -1,7 +1,10 @@
+import 'package:family_wifi/presentation/network_health_screen/network_health_screen.dart';
+import 'package:family_wifi/presentation/network_health_screen/network_health_screen_initial_page.dart';
+import 'package:family_wifi/presentation/network_health_screen/provider/network_health_provider.dart';
+import 'package:family_wifi/presentation/network_health_screen/widgets/health_status_item_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/app_export.dart';
-import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_bottom_bar.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_image_view.dart';
@@ -84,9 +87,7 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
           Tab(text: 'Health'),
         ],
         onTap: (index) {
-          if (index == 1) {
-            NavigatorService.pushNamed(AppRoutes.networkHealthScreen);
-          }
+          tabController.animateTo(index);
         },
       ),
     );
@@ -98,7 +99,10 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
         controller: tabController,
         children: [
           _buildOverviewTab(),
-          Container(), // Health tab content handled by navigation
+          ChangeNotifierProvider(
+            create: (context) => NetworkHealthProvider(),
+            child: NetworkHealthScreenInitialPage(),
+          ),
         ],
       ),
     );
@@ -217,59 +221,39 @@ class _NetworkDashboardScreenState extends State<NetworkDashboardScreen>
   }
 
   Widget _buildGuestNetworkSection() {
-    return Container(
-      padding: EdgeInsets.all(16.h),
-      color: appTheme.gray_900,
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              spacing: 2.h,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Guest Wi-Fi Network',
-                  style: TextStyleHelper.instance.title16MediumInter,
-                ),
-                Text(
-                  'Guest Wi-Fi Network Name (SSID)',
-                  style: TextStyleHelper.instance.body14RegularInter,
-                ),
-              ],
-            ),
-          ),
-          CustomImageView(
-            imagePath: ImageConstant.imgArrowRight,
-            height: 28.h,
-            width: 28.h,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomBar() {
-    return Consumer<NetworkDashboardProvider>(
-      builder: (context, provider, child) {
-        return CustomBottomBar(
-          bottomBarItemList: provider.bottomBarItems,
-          selectedIndex: 0,
-          onChanged: (index) {
-            provider.updateSelectedIndex(index);
-            switch (index) {
-              case 0:
-                // Already on Dashboard
-                break;
-              case 1:
-                NavigatorService.pushNamed(AppRoutes.deviceManagementScreen);
-                break;
-              case 2:
-                NavigatorService.pushNamed(AppRoutes.routerDetailScreen);
-                break;
-            }
-          },
-        );
+    return GestureDetector(
+      onTap: () {
+        NavigatorService.pushNamed(AppRoutes.editGuestNetworkScreen);
       },
+      child: Container(
+        padding: EdgeInsets.all(16.h),
+        color: appTheme.gray_900,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                spacing: 2.h,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Guest Wi-Fi Network',
+                    style: TextStyleHelper.instance.title16MediumInter,
+                  ),
+                  Text(
+                    'Guest Wi-Fi Network Name (SSID)',
+                    style: TextStyleHelper.instance.body14RegularInter,
+                  ),
+                ],
+              ),
+            ),
+            CustomImageView(
+              imagePath: ImageConstant.imgArrowRight,
+              height: 28.h,
+              width: 28.h,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
