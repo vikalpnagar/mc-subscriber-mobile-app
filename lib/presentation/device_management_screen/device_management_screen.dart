@@ -38,7 +38,7 @@ class DeviceManagementScreen extends StatefulWidget {
                         DeviceManagementProvider(
                           homeController.loadingStateProvider,
                           homeController.alertStateProvider,
-                          repository: repository,
+                          repository,
                         );
                     deviceMngmtProvider.handleTopologyInfo(topologyInfo);
                     return deviceMngmtProvider;

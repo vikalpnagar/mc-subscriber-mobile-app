@@ -54,14 +54,24 @@ class MobileDeviceItemView extends StatelessWidget {
               ],
             ),
           ),
-          CustomButton(
-            text: device.isPaused ? 'Resume' : 'Pause',
-            onPressed: onPauseTap,
-            backgroundColor: appTheme.blue_gray_900,
-            fontSize: 14.fSize,
-            fontWeight: FontWeight.w500,
-            padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 6.h),
-          ),
+          if (device.isPauseResumeInProgress)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: SizedBox(
+                height: 20.h,
+                width: 20.h,
+                child: CircularProgressIndicator(color: appTheme.white_A700),
+              ),
+            )
+          else
+            CustomButton(
+              text: device.isPaused ? 'Resume' : 'Pause',
+              onPressed: onPauseTap,
+              backgroundColor: appTheme.blue_gray_900,
+              fontSize: 14.fSize,
+              fontWeight: FontWeight.w500,
+              padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 6.h),
+            ),
         ],
       ),
     );

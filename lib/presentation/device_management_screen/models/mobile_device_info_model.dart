@@ -3,14 +3,15 @@
 // ignore_for_file: must_be_immutable
 class MobileDeviceInfoModel {
   MobileDeviceInfoModel({
-    this.id,
+    required this.macAddress,
     this.deviceName = 'NA',
     this.uploadSpeed = 'NA',
     this.downloadSpeed = 'NA',
     this.iconPath,
     this.isPaused = false,
+    this.isPauseResumeInProgress = false,
   }) {
-    id = id ?? '';
+    macAddress = macAddress;
     deviceName = deviceName;
     uploadSpeed = uploadSpeed;
     downloadSpeed = downloadSpeed;
@@ -18,10 +19,11 @@ class MobileDeviceInfoModel {
     isPaused = isPaused;
   }
 
-  String? id;
+  String macAddress;
   String deviceName;
   String uploadSpeed;
   String downloadSpeed;
   String? iconPath;
   bool isPaused;
+  bool isPauseResumeInProgress;
 }
