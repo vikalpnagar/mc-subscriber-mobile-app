@@ -65,12 +65,13 @@ class MobileDeviceItemView extends StatelessWidget {
             )
           else
             CustomButton(
+              width: 84.0,
               text: device.isPaused ? 'Resume' : 'Pause',
               onPressed: onPauseTap,
               backgroundColor: appTheme.blue_gray_900,
               fontSize: 14.fSize,
               fontWeight: FontWeight.w500,
-              padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 6.h),
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
             ),
         ],
       ),
