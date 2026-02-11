@@ -66,9 +66,8 @@ class DeviceManagementProvider with BaseBloc {
                     deviceName: (clientNode.fingerprint?.isNotEmpty ?? false)
                         ? clientNode.fingerprint!
                         : clientNode.station ?? 'NA',
-                    uploadSpeed: '${clientNode.txRateBitrate.bpsToMbps} Mbps ↑',
-                    downloadSpeed:
-                        '${clientNode.rxRateBitrate.bpsToMbps} Mbps ↓',
+                    uploadSpeed: '${clientNode.txSpeed} Mbps ↑',
+                    downloadSpeed: '${clientNode.rxSpeed} Mbps ↓',
                     isPaused: (clientNode.inactive ?? 0) == 0,
                   );
                 });
