@@ -96,11 +96,11 @@ class DeviceManagementProvider with BaseBloc {
           deviceName: tpNode.serial ?? 'NA',
           deviceUptime: tpNode.uptime.formatSeconds,
           actionButtonText:
-              '$noOfClients ${noOfClients > 1
-                  ? 'Devices'
+              '${noOfClients > 1
+                  ? '$noOfClients Devices'
                   : noOfClients == 1
-                  ? 'Device'
-                  : null}',
+                  ? '1 Device'
+                  : 'No Devices'}',
         );
       }).toList();
     } else {
