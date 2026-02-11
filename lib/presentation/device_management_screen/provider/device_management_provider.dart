@@ -63,7 +63,9 @@ class DeviceManagementProvider with BaseBloc {
                 return apNode.clients?.map((clientNode) {
                   return MobileDeviceInfoModel(
                     macAddress: clientNode.station ?? 'NA',
-                    deviceName: clientNode.station ?? 'NA',
+                    deviceName: (clientNode.fingerprint?.isNotEmpty ?? false)
+                        ? clientNode.fingerprint!
+                        : clientNode.station ?? 'NA',
                     uploadSpeed: '${clientNode.txRateBitrate.bpsToMbps} Mbps ↑',
                     downloadSpeed:
                         '${clientNode.rxRateBitrate.bpsToMbps} Mbps ↓',

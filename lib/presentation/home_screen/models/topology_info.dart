@@ -88,6 +88,7 @@ class Client {
   String? station;
   @JsonKey(name: 'tx_rate_bitrate')
   int? txRateBitrate;
+  String? fingerprint;
 
   Client({
     this.connected,
@@ -97,6 +98,7 @@ class Client {
     this.rxRateChwidth,
     this.station,
     this.txRateBitrate,
+    this.fingerprint,
   });
 
   factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);

@@ -101,6 +101,7 @@ Client _$ClientFromJson(Map<String, dynamic> json) => Client(
   rxRateChwidth: (json['rx_rate_chwidth'] as num?)?.toInt(),
   station: json['station'] as String?,
   txRateBitrate: (json['tx_rate_bitrate'] as num?)?.toInt(),
+  fingerprint: json['fingerprint'] as String?,
 );
 
 Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
@@ -111,4 +112,5 @@ Map<String, dynamic> _$ClientToJson(Client instance) => <String, dynamic>{
   'rx_rate_chwidth': instance.rxRateChwidth,
   'station': instance.station,
   'tx_rate_bitrate': instance.txRateBitrate,
+  'fingerprint': instance.fingerprint,
 };
