@@ -69,7 +69,7 @@ class DeviceManagementProvider with BaseBloc {
                     uploadSpeed: '${clientNode.txRateBitrate.bpsToMbps} Mbps ↑',
                     downloadSpeed:
                         '${clientNode.rxRateBitrate.bpsToMbps} Mbps ↓',
-                    isPaused: (clientNode.inactive ?? 0) > 0,
+                    isPaused: (clientNode.inactive ?? 0) == 0,
                   );
                 });
               });
