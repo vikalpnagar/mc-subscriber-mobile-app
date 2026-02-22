@@ -12,6 +12,9 @@ TopologyInfo _$TopologyInfoFromJson(Map<String, dynamic> json) =>
         nodes: (json['nodes'] as List<dynamic>?)
             ?.map((e) => Node.fromJson(e as Map<String, dynamic>))
             .toList(),
+        historicalClients: (json['historicalClients'] as List<dynamic>?)
+            ?.map((e) => Client.fromJson(e as Map<String, dynamic>))
+            .toList(),
         timestamp: json['timestamp'] == null
             ? null
             : DateTime.parse(json['timestamp'] as String),
@@ -25,6 +28,7 @@ Map<String, dynamic> _$TopologyInfoToJson(TopologyInfo instance) =>
       'boardId': instance.boardId,
       'edges': instance.edges,
       'nodes': instance.nodes,
+      'historicalClients': instance.historicalClients,
       'timestamp': instance.timestamp?.toIso8601String(),
     };
 
