@@ -68,7 +68,7 @@ class DeviceManagementProvider with BaseBloc {
                         : clientNode.station ?? 'NA',
                     uploadSpeed: '${clientNode.txSpeed} Mbps ↑',
                     downloadSpeed: '${clientNode.rxSpeed} Mbps ↓',
-                    isPaused: (clientNode.inactive ?? 0) == 0,
+                    isPaused: clientNode.isBlocked,
                   );
                 });
               });
