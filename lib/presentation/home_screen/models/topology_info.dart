@@ -6,9 +6,15 @@ class TopologyInfo {
   String? boardId;
   Edges? edges;
   List<Node>? nodes;
+  List<Client>? historicalClients;
   DateTime? timestamp;
 
-  TopologyInfo({this.boardId, this.nodes, this.timestamp});
+  TopologyInfo({
+    this.boardId,
+    this.nodes,
+    this.historicalClients,
+    this.timestamp,
+  });
 
   factory TopologyInfo.fromJson(Map<String, dynamic> json) =>
       _$TopologyInfoFromJson(json);

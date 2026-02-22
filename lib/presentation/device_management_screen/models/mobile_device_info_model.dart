@@ -10,6 +10,7 @@ class MobileDeviceInfoModel {
     this.iconPath,
     this.isPaused = false,
     this.isPauseResumeInProgress = false,
+    this.isHistoricalDevice = false,
   }) {
     macAddress = macAddress;
     deviceName = deviceName;
@@ -26,4 +27,5 @@ class MobileDeviceInfoModel {
   String? iconPath;
   bool isPaused;
   bool isPauseResumeInProgress;
+  bool isHistoricalDevice;
 }

@@ -48,14 +48,16 @@ class DeviceManagementProvider with BaseBloc {
   }
 
   void handleTopologyInfo(TopologyInfo? topologyInfo) {
-    if (topologyInfo != null && (topologyInfo.nodes?.isNotEmpty ?? false)) {
-      List<Node> topologyNodes = topologyInfo.nodes!;
+    if (topologyInfo != null &&
+        ((topologyInfo.nodes?.isNotEmpty ?? false) ||
+            (topologyInfo.historicalClients?.isNotEmpty ?? false))) {
+      List<Node> topologyNodes = topologyInfo.nodes ?? [];
       if (selectedNodeSerial?.isNotEmpty ?? false) {
         topologyNodes = topologyNodes
             .where((tpNode) => tpNode.serial == selectedNodeSerial)
             .toList();
       }
-      _mobileDevices.value = topologyNodes
+      List<MobileDeviceInfoModel> mobileDevices = topologyNodes
           .map((tpNode) {
             if (selectedNodeSerial == null ||
                 selectedNodeSerial == tpNode.serial) {
@@ -76,6 +78,27 @@ class DeviceManagementProvider with BaseBloc {
           })
           .deepFlatten<MobileDeviceInfoModel>()
           .toList();
+
+      if (topologyInfo.historicalClients?.isNotEmpty ?? false) {
+        List<MobileDeviceInfoModel> historicalDevices = topologyInfo
+            .historicalClients!
+            .map(
+              (clientNode) => MobileDeviceInfoModel(
+                macAddress: clientNode.station ?? 'NA',
+                deviceName: (clientNode.fingerprint?.isNotEmpty ?? false)
+                    ? clientNode.fingerprint!
+                    : clientNode.station ?? 'NA',
+                uploadSpeed: '${clientNode.txSpeed} Mbps ↑',
+                downloadSpeed: '${clientNode.rxSpeed} Mbps ↓',
+                isPaused: clientNode.isBlocked,
+                isHistoricalDevice: true,
+              ),
+            )
+            .toList();
+        mobileDevices.addAll(historicalDevices);
+      }
+
+      _mobileDevices.value = mobileDevices;
 
       // _mobileDevices.value = List.from(
       //   _mobileDevices.value..addAll(List.from(_mobileDevices.value)),

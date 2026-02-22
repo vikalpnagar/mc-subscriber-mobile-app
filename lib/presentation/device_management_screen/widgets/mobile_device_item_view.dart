@@ -22,7 +22,9 @@ class MobileDeviceItemView extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.h),
-      decoration: BoxDecoration(color: appTheme.gray_900),
+      decoration: BoxDecoration(
+        color: device.isHistoricalDevice ? Colors.grey[700] : appTheme.gray_900,
+      ),
       child: Row(
         spacing: 16.h,
         children: [
@@ -31,7 +33,9 @@ class MobileDeviceItemView extends StatelessWidget {
             onTap: onIconTap,
             height: 48.h,
             width: 48.h,
-            backgroundColor: appTheme.blue_gray_900,
+            backgroundColor: device.isHistoricalDevice
+                ? Colors.grey
+                : appTheme.blue_gray_900,
             borderRadius: 8.h,
           ),
           Expanded(
@@ -45,12 +49,13 @@ class MobileDeviceItemView extends StatelessWidget {
                     style: TextStyleHelper.instance.title16MediumInter,
                   ),
                 ),
-                FittedBox(
-                  child: Text(
-                    '${device.uploadSpeed} ${device.downloadSpeed}',
-                    style: TextStyleHelper.instance.body14RegularInter,
+                if (!device.isHistoricalDevice)
+                  FittedBox(
+                    child: Text(
+                      '${device.uploadSpeed} ${device.downloadSpeed}',
+                      style: TextStyleHelper.instance.body14RegularInter,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -68,7 +73,9 @@ class MobileDeviceItemView extends StatelessWidget {
               width: 84.0,
               text: device.isPaused ? 'Resume' : 'Pause',
               onPressed: onPauseTap,
-              backgroundColor: appTheme.blue_gray_900,
+              backgroundColor: device.isHistoricalDevice
+                  ? Colors.grey
+                  : appTheme.blue_gray_900,
               fontSize: 14.fSize,
               fontWeight: FontWeight.w500,
               padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
