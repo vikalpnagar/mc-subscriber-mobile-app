@@ -93,6 +93,7 @@ class Client {
   final double rxSpeed;
   @JsonKey(name: 'tx_speed', defaultValue: 0)
   final double txSpeed;
+  String? blocked;
 
   Client({
     this.connected,
@@ -105,7 +106,10 @@ class Client {
     this.fingerprint,
     this.rxSpeed = 0,
     this.txSpeed = 0,
+    this.blocked,
   });
+
+  get isBlocked => blocked == '1';
 
   factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);
   Map<String, dynamic> toJson() => _$ClientToJson(this);
