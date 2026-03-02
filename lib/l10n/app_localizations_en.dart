@@ -73,6 +73,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit_network_success => 'Network settings saved successfully';
 
   @override
+  String get ssid_password_required => 'Both SSID and Password are required.';
+
+  @override
   String get edit_network_failed => 'SSID/Password Update Failed';
 
   @override
@@ -96,6 +99,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get remove_device_failed => 'Failed to remove device';
+
+  @override
+  String get resume => 'Resume';
+
+  @override
+  String get pause => 'Pause';
 
   @override
   String get pause_device_success => 'Device paused successfully';

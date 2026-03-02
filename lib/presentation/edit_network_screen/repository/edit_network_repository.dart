@@ -25,21 +25,26 @@ class EditNetworkRepository {
 
   Future<Result> editNetwork(EditNetworkModel editNetworkModel) async {
     try {
-      Map<String, dynamic> result = await _apiHelper.request(
-        ApiConstants.action,
-        requestType: RequestType.POST,
-        parameters: {'action': ApiConstants.actionConfigure},
-        requestBody: ConfigurePayload(
-          editNetworkItem: EditNetworkItem(
-            name: editNetworkModel.ssid,
-            password: editNetworkModel.password,
+      if ((editNetworkModel.ssid?.isNotEmpty ?? false) &&
+          (editNetworkModel.password?.isNotEmpty ?? false)) {
+        Map<String, dynamic> result = await _apiHelper.request(
+          ApiConstants.action,
+          requestType: RequestType.POST,
+          parameters: {'action': ApiConstants.actionConfigure},
+          requestBody: ConfigurePayload.forSsidEdit(
+            name: editNetworkModel.ssid!,
+            password: editNetworkModel.password!,
           ),
-        ),
-      );
-      if (result['Code'] != null) {
-        return Result.success(true);
+        );
+        if (result['Code'] != null) {
+          return Result.success(true);
+        } else {
+          return Result.error(
+            await result['Details'] ?? 'invalid_response'.tr(),
+          );
+        }
       } else {
-        return Result.error(await result['Details'] ?? 'invalid_response'.tr());
+        return Result.error(await 'ssid_password_required'.tr());
       }
     } catch (error, stack) {
       logPrint('$error, \n$stack');

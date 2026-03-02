@@ -214,6 +214,12 @@ abstract class AppLocalizations {
   /// **'Network settings saved successfully'**
   String get edit_network_success;
 
+  /// No description provided for @ssid_password_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Both SSID and Password are required.'**
+  String get ssid_password_required;
+
   /// No description provided for @edit_network_failed.
   ///
   /// In en, this message translates to:
@@ -261,6 +267,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to remove device'**
   String get remove_device_failed;
+
+  /// No description provided for @resume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resume;
+
+  /// No description provided for @pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pause;
 
   /// No description provided for @pause_device_success.
   ///

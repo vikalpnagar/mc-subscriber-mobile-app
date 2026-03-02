@@ -3,6 +3,8 @@ import 'package:family_wifi/presentation/device_management_screen/provider/devic
 import 'package:family_wifi/presentation/device_management_screen/widgets/mobile_device_item_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:family_wifi/theme/theme_helper.dart';
+import 'package:family_wifi/l10n/app_localization_extension.dart';
 
 class MobileDevicesTab extends StatelessWidget {
   late final bool shrinkWrap;
@@ -41,17 +43,26 @@ class MobileDevicesTab extends StatelessWidget {
                           AppRoutes.networkDevicesManagementScreen,
                         );
                       },*/
-                    onPauseTap: () {
-                      deviceMngmtController.toggleDevicePause(
-                        items[index],
-                        context,
-                      );
-                    },
+                    onPauseTap: () => handleDevicePause(deviceMngmtController, items[index], context),
                   );
                 },
               );
             },
       ),
     );
+  }
+
+  Future<void> handleDevicePause(DeviceManagementProvider deviceMngmtController, MobileDeviceInfoModel device, BuildContext context) async {
+      String? message = await deviceMngmtController.toggleDevicePause(device);
+      if(message != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              await message.tr(),
+            ),
+            backgroundColor: appTheme.colorFF4CAF,
+          ),
+        );
+      }
   }
 }

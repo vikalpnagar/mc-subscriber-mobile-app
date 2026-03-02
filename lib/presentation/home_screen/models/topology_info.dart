@@ -115,7 +115,7 @@ class Client {
     this.blocked,
   });
 
-  get isBlocked => blocked == '1';
+  bool get isBlocked => blocked == '1';
 
   factory Client.fromJson(Map<String, dynamic> json) => _$ClientFromJson(json);
   Map<String, dynamic> toJson() => _$ClientToJson(this);

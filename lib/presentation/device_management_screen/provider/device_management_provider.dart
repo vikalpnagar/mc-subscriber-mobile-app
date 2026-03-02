@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:family_wifi/core/network/result.dart';
 import 'package:family_wifi/core/utils/alert_state_provider.dart';
 import 'package:family_wifi/core/utils/base_bloc.dart';
@@ -11,7 +10,6 @@ import 'package:family_wifi/presentation/device_management_screen/models/router_
 import 'package:family_wifi/presentation/device_management_screen/repository/device_management_repository.dart';
 import 'package:family_wifi/presentation/home_screen/models/topology_info.dart';
 import 'package:family_wifi/routes/app_routes.dart';
-import 'package:family_wifi/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 import '../models/mobile_device_info_model.dart';
@@ -23,14 +21,18 @@ class DeviceManagementProvider with BaseBloc {
       GlobalKey<RefreshIndicatorState>();
 
   final Streamer<List<MobileDeviceInfoModel>> _mobileDevices = new Streamer();
+
   Stream<List<MobileDeviceInfoModel>?> get mobileDevices =>
       _mobileDevices.stream;
+
   List<MobileDeviceInfoModel>? get mobileDevicesInitialData =>
       _mobileDevices.valueOrNull;
 
   final Streamer<List<RouterDeviceInfoModel>> _routerDevices = new Streamer();
+
   Stream<List<RouterDeviceInfoModel>?> get routerDevices =>
       _routerDevices.stream;
+
   List<RouterDeviceInfoModel>? get routerDevicesInitialData =>
       _routerDevices.valueOrNull;
 
@@ -47,7 +49,7 @@ class DeviceManagementProvider with BaseBloc {
     initialize(loadingStateProvider, alertStateProvider);
   }
 
-  void handleTopologyInfo(TopologyInfo? topologyInfo) {
+  void handleTopologyInfo(TopologyInfo? topologyInfo) async {
     if (topologyInfo != null &&
         ((topologyInfo.nodes?.isNotEmpty ?? false) ||
             (topologyInfo.historicalClients?.isNotEmpty ?? false))) {
@@ -57,44 +59,25 @@ class DeviceManagementProvider with BaseBloc {
             .where((tpNode) => tpNode.serial == selectedNodeSerial)
             .toList();
       }
-      List<MobileDeviceInfoModel> mobileDevices = topologyNodes
-          .map((tpNode) {
-            if (selectedNodeSerial == null ||
-                selectedNodeSerial == tpNode.serial) {
-              return tpNode.aps?.map((apNode) {
-                return apNode.clients?.map((clientNode) {
-                  return MobileDeviceInfoModel(
-                    macAddress: clientNode.station ?? 'NA',
-                    deviceName: (clientNode.fingerprint?.isNotEmpty ?? false)
-                        ? clientNode.fingerprint!
-                        : clientNode.station ?? 'NA',
-                    uploadSpeed: '${clientNode.txSpeed} Mbps ↑',
-                    downloadSpeed: '${clientNode.rxSpeed} Mbps ↓',
-                    isPaused: clientNode.isBlocked,
-                  );
-                });
-              });
-            }
-          })
-          .deepFlatten<MobileDeviceInfoModel>()
-          .toList();
+      List<MobileDeviceInfoModel> mobileDevices = await Future.wait(
+        topologyNodes
+            .where(
+              (tpNode) =>
+                  selectedNodeSerial == null ||
+                  tpNode.serial == selectedNodeSerial,
+            )
+            .expand((tpNode) => tpNode.aps ?? <AccessPoint>[])
+            .expand((apNode) => apNode.clients ?? <Client>[])
+            .map((clientNode) => _mapClientToModel(clientNode)),
+      );
 
       if (topologyInfo.historicalClients?.isNotEmpty ?? false) {
-        List<MobileDeviceInfoModel> historicalDevices = topologyInfo
-            .historicalClients!
-            .map(
-              (clientNode) => MobileDeviceInfoModel(
-                macAddress: clientNode.station ?? 'NA',
-                deviceName: (clientNode.fingerprint?.isNotEmpty ?? false)
-                    ? clientNode.fingerprint!
-                    : clientNode.station ?? 'NA',
-                uploadSpeed: '${clientNode.txSpeed} Mbps ↑',
-                downloadSpeed: '${clientNode.rxSpeed} Mbps ↓',
-                isPaused: clientNode.isBlocked,
-                isHistoricalDevice: true,
-              ),
-            )
-            .toList();
+        List<MobileDeviceInfoModel> historicalDevices = await Future.wait(
+          topologyInfo.historicalClients!.map(
+            (clientNode) =>
+                _mapClientToModel(clientNode, isHistoricalDevice: true),
+          ),
+        );
         mobileDevices.addAll(historicalDevices);
       }
 
@@ -135,11 +118,30 @@ class DeviceManagementProvider with BaseBloc {
     }
   }
 
-  Future<void> toggleDevicePause(
-    MobileDeviceInfoModel device,
-    BuildContext context,
-  ) async {
-    device.isPauseResumeInProgress = true;
+  Future<MobileDeviceInfoModel> _mapClientToModel(
+    Client clientNode, {
+    bool isHistoricalDevice = false,
+  }) async {
+    return MobileDeviceInfoModel(
+      macAddress: clientNode.station ?? 'NA',
+      deviceName: (clientNode.fingerprint?.isNotEmpty ?? false)
+          ? clientNode.fingerprint!
+          : clientNode.station ?? 'NA',
+      uploadSpeed: '${clientNode.txSpeed} Mbps ↑',
+      downloadSpeed: '${clientNode.rxSpeed} Mbps ↓',
+      actionLabel: await (clientNode.isBlocked ? 'resume' : 'pause').tr(),
+      isPaused: clientNode.isBlocked,
+      isHistoricalDevice: isHistoricalDevice,
+    );
+  }
+
+  Future<String?> toggleDevicePause(MobileDeviceInfoModel device) async {
+    // Set progress state
+    _updateDeviceInList(
+      device.macAddress,
+      (device) async => device.copyWith(isPauseResumeInProgress: true),
+    );
+
     _mobileDevices.value = List.of(_mobileDevices.value);
 
     try {
@@ -149,21 +151,19 @@ class DeviceManagementProvider with BaseBloc {
       );
 
       if (result.isSuccess) {
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              await (device.isPaused
-                      ? 'resume_device_success'
-                      : 'pause_device_success')
-                  .tr(),
-            ),
-            backgroundColor: appTheme.colorFF4CAF,
+        final newPausedState = !device.isPaused;
+        _updateDeviceInList(
+          device.macAddress,
+          (device) async => device.copyWith(
+            isPauseResumeInProgress: false,
+            isPaused: newPausedState,
+            actionLabel: await (newPausedState ? 'resume' : 'pause').tr(), // Note: You'd ideally translate this
           ),
         );
-        device.isPauseResumeInProgress = false;
-        device.isPaused = !device.isPaused;
-        _mobileDevices.value = List.of(_mobileDevices.value);
+        // Pass success message
+        return !newPausedState
+            ? 'resume_device_success'
+            : 'pause_device_success';
       } else if (result.sessionExpired) {
         NavigatorService.pushNamedAndRemoveUntil(AppRoutes.loginScreen);
       } else {
@@ -175,18 +175,23 @@ class DeviceManagementProvider with BaseBloc {
                       : 'pause_device_error')
                   .tr(),
         );
-        device.isPauseResumeInProgress = false;
-        _mobileDevices.value = List.of(_mobileDevices.value);
+        _updateDeviceInList(
+          device.macAddress,
+          (device) async => device.copyWith(isPauseResumeInProgress: false),
+        );
       }
     } catch (error) {
       showAlert(await 'failed'.tr(), title: await 'something_went_wrong'.tr());
 
-      device.isPauseResumeInProgress = false;
-      _mobileDevices.value = List.of(_mobileDevices.value);
+      _updateDeviceInList(
+        device.macAddress,
+        (device) async => device.copyWith(isPauseResumeInProgress: false),
+      );
 
       // Handle error
       print('Toggle Device Pause error: $error');
     }
+    return null;
   }
 
   Future<bool> handleRouterMeshDelete(int indexToDelete) async {
@@ -222,7 +227,7 @@ class DeviceManagementProvider with BaseBloc {
           .replaceAll(specialChars, '')
           .toLowerCase();
 
-      Result result = await _repository!.deleteDevice(macAddressFormatted);
+      Result result = await _repository.deleteDevice(macAddressFormatted);
       dismissLoading();
 
       if (result.isSuccess) {
@@ -241,36 +246,29 @@ class DeviceManagementProvider with BaseBloc {
     return false;
   }
 
+  void _updateDeviceInList(
+    String macAddress,
+    Future<MobileDeviceInfoModel> Function(MobileDeviceInfoModel) update,
+  ) async {
+    final currentList = _mobileDevices.value;
+    final index = currentList.indexWhere(
+      (device) => device.macAddress == macAddress,
+    );
+    if (index != -1) {
+      currentList[index] = await update(currentList[index]);
+      _mobileDevices.value = List.of(currentList); // Emit the new list
+    }
+  }
+
   void dispose() {
     _mobileDevices.close();
     _routerDevices.close();
   }
 }
 
-extension IterableExtension on Iterable {
-  // A generic function to deeply flatten any nested, nullable iterable structure
-  Iterable<T> deepFlatten<T>() sync* {
-    for (final element in this) {
-      if (element == null) {
-        continue; // Skip if an inner iterable or element is null
-      }
-
-      // Check if the element is itself an Iterable (but not a String)
-      // String is a special case of Iterable<int> but should be treated as a single element
-      if (element is Iterable && element is! String) {
-        // Recursively flatten the nested iterable
-        yield* element.deepFlatten<T>();
-      } else {
-        // If it's a CustomModel or other non-iterable, yield it
-        // We cast it to T, assuming the input structure eventually resolves to T
-        yield element as T;
-      }
-    }
-  }
-}
-
 extension RateExtension on num? {
   double get bpsToMbps => (this ?? 0) > 0 ? this! / 1000000 : 0;
+
   double get bpsToKbps => (this ?? 0) > 0 ? this! / 1000 : 0;
 
   String get formatSeconds {
