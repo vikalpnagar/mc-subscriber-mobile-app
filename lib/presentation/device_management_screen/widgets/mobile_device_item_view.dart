@@ -1,4 +1,3 @@
-import 'package:family_wifi/l10n/app_localization_extension.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/app_export.dart';

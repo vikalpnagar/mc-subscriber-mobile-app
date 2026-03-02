@@ -9,7 +9,6 @@ import 'package:family_wifi/core/utils/print_log_helper.dart';
 import 'package:family_wifi/core/utils/shared_preferences_helper.dart';
 import 'package:family_wifi/l10n/app_localization_extension.dart';
 import 'package:family_wifi/presentation/edit_network_screen/models/edit_network_model.dart';
-import 'package:family_wifi/presentation/login_screen/models/login_result.dart';
 
 class EditNetworkRepository {
   late final ApiHelper _apiHelper;
