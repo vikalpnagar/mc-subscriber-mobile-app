@@ -5,6 +5,7 @@ import 'package:family_wifi/core/utils/shared_preferences_helper.dart';
 import 'package:family_wifi/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -13,6 +14,8 @@ import 'core/app_export.dart';
 var globalMessengerKey = GlobalKey<ScaffoldMessengerState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
+
   // 🚨 CRITICAL: Device orientation lock - DO NOT REMOVE
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 

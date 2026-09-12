@@ -7,6 +7,8 @@ import 'package:family_wifi/presentation/device_management_screen/device_managem
 import 'package:family_wifi/presentation/home_screen/bottom_bar_item.dart';
 import 'package:family_wifi/presentation/home_screen/provider/home_provider.dart';
 import 'package:family_wifi/presentation/home_screen/repository/home_repository.dart';
+import 'package:family_wifi/presentation/subscriber_location/add_subscriber_location.dart';
+import 'package:family_wifi/presentation/subscriber_location/repository/subscriber_location_repository.dart';
 import 'package:family_wifi/presentation/network_dashboard_screen/network_dashboard_screen.dart';
 import 'package:family_wifi/presentation/setting_screen/setting_screen.dart';
 import 'package:family_wifi/widgets/custom_app_bar.dart';
@@ -23,19 +25,38 @@ class HomeScreen extends StatefulWidget {
         update: (_, apiHelper, homeRepo) {
           return homeRepo ?? HomeRepository(apiHelper);
         },
-        child:
-            ProxyProvider3<
-              LoadingStateProvider,
-              AlertStateProvider,
-              HomeRepository,
-              HomeProvider
-            >(
-              update: (_, loadingState, alertState, homeRepo, homeProvider) {
-                return homeProvider ??
-                    HomeProvider(loadingState, alertState, homeRepo);
-              },
-              child: const HomeScreen(),
-            ),
+        child: ProxyProvider<ApiHelper, SubscriberLocationRepository>(
+          update: (_, apiHelper, subsLocationRepo) {
+            return subsLocationRepo ?? SubscriberLocationRepository(apiHelper);
+          },
+          child:
+              ProxyProvider4<
+                LoadingStateProvider,
+                AlertStateProvider,
+                HomeRepository,
+                SubscriberLocationRepository,
+                HomeProvider
+              >(
+                update:
+                    (
+                      _,
+                      loadingState,
+                      alertState,
+                      homeRepo,
+                      subsLocationRepo,
+                      homeProvider,
+                    ) {
+                      return homeProvider ??
+                          HomeProvider(
+                            loadingState,
+                            alertState,
+                            homeRepo,
+                            subsLocationRepo,
+                          );
+                    },
+                child: const HomeScreen(),
+              ),
+        ),
       ),
     );
   }
@@ -54,9 +75,26 @@ class _HomeScreenState extends State<HomeScreen>
     controller = Provider.of<HomeProvider>(context, listen: false);
     controller.loadingStateProvider.addListener(handleLoadingState);
     controller.alertStateProvider.addListener(handleAlertState);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback(postFrameCallback);
+  }
+
+  Future<void> postFrameCallback(Duration duration) async {
+    bool showSubscriberLocationPopup = await controller
+        .shouldAskSubscriberLocation();
+    if (showSubscriberLocationPopup) {
+      dynamic result = await StyleHelper.showAdaptiveBottomSheet(
+        context,
+        child: Provider.value(
+          value: context.read<SubscriberLocationRepository>(),
+          child: AddSubscriberLocation.builder(context),
+        ),
+      );
+      if(result == true) {
+        controller.init();
+      }
+    } else {
       controller.init();
-    });
+    }
   }
 
   handleLoadingState() {
