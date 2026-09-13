@@ -48,7 +48,7 @@ class HomeProvider with BaseBloc {
   void dispose() {
     pageController.dispose();
     selectedNavBarItem.dispose();
-    super.dispose();
+    topologyInfo.dispose();
   }
 
   void init() {

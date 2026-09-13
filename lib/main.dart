@@ -12,6 +12,7 @@ import 'package:provider/single_child_widget.dart';
 import 'core/app_export.dart';
 
 var globalMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
@@ -85,12 +86,12 @@ class MyApp extends StatelessWidget {
   }
 
   static Widget buildLoadingAlertProviders({Widget? child}) {
-    return ChangeNotifierProvider<LoadingStateProvider>.value(
-      value: LoadingStateProvider(false),
-      child: ChangeNotifierProvider<AlertStateProvider>.value(
-        value: AlertStateProvider(false),
-        child: child,
-      ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LoadingStateProvider(false)),
+        ChangeNotifierProvider(create: (_) => AlertStateProvider(false)),
+      ],
+      child: child,
     );
   }
 }

@@ -21,42 +21,26 @@ class HomeScreen extends StatefulWidget {
 
   static Widget builder(BuildContext context) {
     return MyApp.buildLoadingAlertProviders(
-      child: ProxyProvider<ApiHelper, HomeRepository>(
-        update: (_, apiHelper, homeRepo) {
-          return homeRepo ?? HomeRepository(apiHelper);
-        },
-        child: ProxyProvider<ApiHelper, SubscriberLocationRepository>(
-          update: (_, apiHelper, subsLocationRepo) {
-            return subsLocationRepo ?? SubscriberLocationRepository(apiHelper);
-          },
-          child:
-              ProxyProvider4<
-                LoadingStateProvider,
-                AlertStateProvider,
-                HomeRepository,
-                SubscriberLocationRepository,
-                HomeProvider
-              >(
-                update:
-                    (
-                      _,
-                      loadingState,
-                      alertState,
-                      homeRepo,
-                      subsLocationRepo,
-                      homeProvider,
-                    ) {
-                      return homeProvider ??
-                          HomeProvider(
-                            loadingState,
-                            alertState,
-                            homeRepo,
-                            subsLocationRepo,
-                          );
-                    },
-                child: const HomeScreen(),
-              ),
-        ),
+      child: MultiProvider(
+        providers: [
+          Provider<HomeRepository>(
+            create: (_) => HomeRepository(context.read<ApiHelper>()),
+          ),
+          Provider<SubscriberLocationRepository>(
+            create: (_) =>
+                SubscriberLocationRepository(context.read<ApiHelper>()),
+          ),
+          Provider<HomeProvider>(
+            create: (lCtx) => HomeProvider(
+              lCtx.read<LoadingStateProvider>(),
+              lCtx.read<AlertStateProvider>(),
+              lCtx.read<HomeRepository>(),
+              lCtx.read<SubscriberLocationRepository>(),
+            ),
+            dispose: (_, provider) => provider.dispose(),
+          ),
+        ],
+        child: const HomeScreen(),
       ),
     );
   }
@@ -89,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen>
           child: AddSubscriberLocation.builder(context),
         ),
       );
-      if(result == true) {
+      if (result == true) {
         controller.init();
       }
     } else {

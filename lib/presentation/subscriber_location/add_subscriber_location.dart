@@ -15,14 +15,10 @@ class AddSubscriberLocation extends StatefulWidget {
   const AddSubscriberLocation({super.key});
 
   static Widget builder(BuildContext context) {
-    return ProxyProvider<
-      SubscriberLocationRepository,
-      SubscriberLocationProvider
-    >(
-      update: (_, subsLocationRepo, subsLocationProvider) {
-        return subsLocationProvider ??
-            SubscriberLocationProvider(subsLocationRepo);
-      },
+    return Provider<SubscriberLocationProvider>(
+      create: (lCtx) =>
+          SubscriberLocationProvider(lCtx.read<SubscriberLocationRepository>()),
+      dispose: (_, provider) => provider.dispose(),
       child: const AddSubscriberLocation(),
     );
   }

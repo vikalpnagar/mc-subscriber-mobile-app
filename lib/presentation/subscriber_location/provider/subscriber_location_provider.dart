@@ -29,6 +29,9 @@ class SubscriberLocationProvider {
 
   void dispose() {
     locationNameController.dispose();
+    configurationState.dispose();
+    locationError.dispose();
+    timezoneError.dispose();
   }
 
   void onLocationNameChanged(String value) {
