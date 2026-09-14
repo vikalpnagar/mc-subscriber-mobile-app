@@ -84,6 +84,7 @@ class HomeProvider with BaseBloc {
       }
     } catch (error) {
       logPrint(error);
+      throw error;
     }
 
     return null;

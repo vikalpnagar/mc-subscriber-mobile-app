@@ -376,8 +376,8 @@ class StyleHelper {
     bool isDismissible = false,
     bool useRootNavigator = true,
     BorderRadius borderRadius = const BorderRadius.only(
-      topLeft: Radius.circular(12.0),
-      topRight: Radius.circular(12.0),
+      topLeft: const Radius.circular(16.0),
+      topRight: const Radius.circular(16.0),
     ),
   }) {
     if (isIOS) {
@@ -411,8 +411,10 @@ class StyleHelper {
         isScrollControlled: isScrollControlled,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
-        backgroundColor: Colors.transparent,
+        showDragHandle: isDismissible,
+        backgroundColor: Theme.of(ctx).canvasColor,
         useRootNavigator: useRootNavigator,
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
         builder: (context) {
           return PopScope(
             canPop: isDismissible,
@@ -422,15 +424,7 @@ class StyleHelper {
                   top: MediaQuery.paddingOf(ctx).top,
                   bottom: MediaQuery.of(context).viewInsets.bottom,
                 ),
-                child: ClipRRect(
-                  borderRadius: borderRadius,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).canvasColor,
-                    ),
-                    child: child,
-                  ),
-                ),
+                child: child,
               ),
             ),
           );
